@@ -3,142 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property Assessment Portal - 2025</title>
+    <title>Property Assessment Database - Full Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #003366;
-            --secondary: #4a5568;
-            --accent: #d97706;
-            --bg: #f8fafc;
-            --white: #ffffff;
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --accent-light: #dbeafe;
+            --success: #059669;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
             --border: #e2e8f0;
             --text-main: #1e293b;
             --text-muted: #64748b;
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
             margin: 0;
             padding: 0;
-            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1280px;
             margin: 0 auto;
             padding: 20px;
         }
 
         header {
-            padding: 40px 0;
+            padding: 30px 0;
             text-align: center;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.25rem;
             color: var(--primary);
             margin: 0;
             font-weight: 800;
+            letter-spacing: -0.025em;
         }
 
         .search-area {
             position: sticky;
-            top: 0;
+            top: 10px;
             background: var(--bg);
-            padding: 20px 0;
-            z-index: 100;
-            border-bottom: 1px solid var(--border);
+            padding: 15px 0;
+            z-index: 1000;
         }
 
         .search-container {
             max-width: 800px;
             margin: 0 auto;
-            background: var(--white);
-            padding: 10px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            background: var(--card-bg);
+            padding: 8px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
         }
 
-        input[type="text"] {
+        #search-input {
             width: 100%;
-            padding: 16px 20px;
-            border: 2px solid transparent;
-            background: #f1f5f9;
-            border-radius: 8px;
-            font-size: 1.1rem;
+            padding: 16px 24px;
+            border: none;
+            background: #f8fafc;
+            border-radius: 12px;
+            font-size: 1.125rem;
             outline: none;
             transition: all 0.2s;
-            box-sizing: border-box;
         }
 
-        input[type="text"]:focus {
-            background: var(--white);
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(0, 51, 102, 0.1);
+        #search-input:focus {
+            background: #fff;
+            box-shadow: inset 0 0 0 2px var(--accent);
         }
 
         .stats {
-            padding: 0 10px;
-            font-size: 0.9rem;
+            padding: 8px 15px 0;
+            font-size: 0.875rem;
             color: var(--text-muted);
             font-weight: 500;
         }
 
         #results-list {
-            margin-top: 30px;
-            display: grid;
-            gap: 16px;
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .record-card {
-            background: var(--white);
+            background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            transition: transform 0.1s, border-color 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
         }
 
         .record-card:hover {
-            border-color: var(--primary);
+            border-color: var(--accent);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
 
         .record-header {
             padding: 24px;
+            background: #fff;
         }
 
         .address-title {
             display: block;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 800;
             color: var(--primary);
-            text-transform: uppercase;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            line-height: 1.2;
         }
 
         .serial-subtitle {
-            display: block;
-            font-size: 1.2rem;
-            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            background: var(--accent-light);
             color: var(--accent);
-        }
-
-        .serial-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-right: 6px;
-            letter-spacing: 0.05em;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 0.875rem;
         }
 
         .record-body {
             display: none;
-            padding: 0 24px 24px;
+            padding: 0 24px 32px;
             border-top: 1px solid var(--border);
             background: #fafafa;
         }
@@ -147,133 +146,144 @@
             display: block;
         }
 
-        .detail-section {
-            margin-top: 24px;
+        .section {
+            margin-top: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
         }
 
         .section-title {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
             color: var(--text-muted);
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 6px;
-            margin-bottom: 16px;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
         }
 
-        .details-grid {
+        /* Desktop Layout: 3 columns */
+        .grid-3 {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
         }
 
+        /* Assessment Grid: Small boxes */
         .assessment-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 12px;
         }
 
-        .detail-item {
+        .data-item {
             display: flex;
             flex-direction: column;
+            gap: 2px;
         }
 
-        .detail-label {
+        .label {
             font-size: 0.7rem;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--text-muted);
             text-transform: uppercase;
-            margin-bottom: 2px;
         }
 
-        .detail-value {
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--text-main);
+        .value {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--primary);
             word-break: break-all;
         }
 
-        .assessment-box {
-            background: var(--white);
-            border: 1px solid var(--border);
+        .asmnt-box {
+            background: white;
             padding: 10px;
             border-radius: 8px;
-            display: flex;
-            flex-direction: column;
+            border: 1px solid var(--border);
+            text-align: center;
         }
 
-        .assessment-year {
+        .asmnt-year {
             font-size: 0.65rem;
             font-weight: 700;
             color: var(--text-muted);
+            display: block;
         }
 
-        .assessment-amount {
-            font-size: 1.1rem;
+        .asmnt-val {
+            font-size: 1rem;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--accent);
         }
 
         .full-width {
             grid-column: 1 / -1;
         }
 
-        .long-text {
-            background: #fff;
-            padding: 12px;
+        .text-block {
+            background: white;
+            padding: 16px;
             border-radius: 8px;
             border: 1px solid var(--border);
+            font-size: 0.9375rem;
             white-space: pre-wrap;
-            font-size: 0.9rem;
+            line-height: 1.6;
         }
 
-        .no-results {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-muted);
-            font-size: 1.1rem;
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            h1 { font-size: 1.75rem; }
+            .address-title { font-size: 1.25rem; }
         }
 
-        #loading-screen {
+        #loader {
             position: fixed;
             inset: 0;
-            background: var(--white);
+            background: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 9999;
         }
 
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--accent-light);
+            border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div id="loading-screen">
+<div id="loader">
     <div class="spinner"></div>
-    <p style="margin-top: 20px; font-weight: 600;">Loading 14,000+ Records...</p>
+    <p style="margin-top: 16px; font-weight: 600; color: var(--primary);">Loading Database...</p>
 </div>
 
 <div class="container">
     <header>
-        <h1>Property Assessment Database</h1>
+        <h1>Property Assessments</h1>
     </header>
 
     <div class="search-area">
         <div class="search-container">
-            <input type="text" id="search-input" placeholder="Enter Address or Tax Serial Number..." autofocus autocomplete="off">
-            <div id="search-stats" class="stats">Ready to search.</div>
+            <input type="text" id="search-input" placeholder="Search by Address or Serial Number..." autocomplete="off">
+            <div id="search-stats" class="stats">Searching 14,000+ records...</div>
         </div>
     </div>
 
@@ -285,133 +295,141 @@
     const searchInput = document.getElementById('search-input');
     const resultsList = document.getElementById('results-list');
     const stats = document.getElementById('search-stats');
-    const loader = document.getElementById('loading-screen');
+    const loader = document.getElementById('loader');
 
-    // Load data
+    // Load Data
     fetch('data.json')
         .then(res => res.json())
         .then(data => {
             records = data;
             loader.style.display = 'none';
-            stats.innerText = `Searching ${records.length.toLocaleString()} records.`;
+            stats.innerText = `Total Records: ${records.length.toLocaleString()}`;
         })
         .catch(err => {
             console.error(err);
-            loader.innerHTML = '<p style="color:red">Error loading database. Please check the data.json file.</p>';
+            loader.innerHTML = '<p style="color:red">Error loading data.json</p>';
         });
 
-    function formatCurrency(val) {
-        if (val === 'N/A' || val === '') return 'N/A';
-        const num = parseFloat(val);
-        if (isNaN(num)) return val;
-        return '$' + num.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    function getYear(key) {
+        if (key.startsWith('99')) return 1999;
+        const m = key.match(/\d+/);
+        if (!m) return 9999;
+        let y = parseInt(m[0]);
+        return y < 50 ? 2000 + y : 1900 + y;
     }
 
-    function createRecordElement(item) {
+    function createRecord(item) {
         const card = document.createElement('div');
         card.className = 'record-card';
         card.onclick = () => card.classList.toggle('expanded');
 
-        const address = item['ADDRESS(COMB)'] || 'NO ADDRESS';
-        const serial = item['TAX SER NO'] || 'Unknown';
-
-        // Separate assessment columns and general columns
-        const assessments = [];
-        const general = [];
+        // Logic to group fields
+        const asmnt = [];
+        const basics = [];
+        const location = [];
         const notes = [];
+        const rates = [];
 
-        Object.entries(item).forEach(([key, value]) => {
-            if (key === 'ADDRESS(COMB)' || key === 'TAX SER NO') return;
-            
-            if (key.includes('ASMNT') || key.includes('ASSESSM')) {
-                assessments.push({ key, value });
-            } else if (['Special Notes', 'Other Description', 'Legal Description', 'Priors', 'Futures'].includes(key)) {
-                notes.push({ key, value });
+        Object.entries(item).forEach(([k, v]) => {
+            if (!v || v === 'N/A' || v === '') return;
+            if (k === 'ADDRESS(COMB)' || k === 'TAX SER NO') return;
+
+            if (k.includes('ASMNT') || k.includes('ASSESSM')) {
+                asmnt.push({k, v, year: getYear(k)});
+            } else if (['Special Notes', 'Other Description', 'Legal Description', 'Futures', 'Priors', 'Activity'].includes(k)) {
+                notes.push({k, v});
+            } else if (['Owner Address', 'Owner city', 'Owner State', 'Owner Zip', 'House No', 'Street Name', 'ADDRESS'].includes(k)) {
+                location.push({k, v});
+            } else if (k.includes('2025') || k.includes('Acre Ft')) {
+                rates.push({k, v});
             } else {
-                general.push({ key, value });
+                basics.push({k, v});
             }
         });
 
+        asmnt.sort((a, b) => a.year - b.year);
+
         card.innerHTML = `
             <div class="record-header">
-                <span class="address-title">${address}</span>
-                <span class="serial-subtitle"><span class="serial-label">Tax Serial:</span>${serial}</span>
+                <span class="address-title">${item['ADDRESS(COMB)']}</span>
+                <div class="serial-subtitle">Serial: ${item['TAX SER NO']}</div>
             </div>
             <div class="record-body">
-                <div class="detail-section">
-                    <div class="section-title">Property Details</div>
-                    <div class="details-grid">
-                        ${general.map(g => `
-                            <div class="detail-item">
-                                <span class="detail-label">${g.key}</span>
-                                <span class="detail-value">${g.value}</span>
+                <div class="section">
+                    <div class="section-header"><div class="section-title">Property Information</div></div>
+                    <div class="grid-3">
+                        ${basics.map(b => `<div class="data-item"><span class="label">${b.k}</span><span class="value">${b.v}</span></div>`).join('')}
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header"><div class="section-title">Rates & Water</div></div>
+                    <div class="grid-3">
+                        ${rates.map(r => `<div class="data-item"><span class="label">${r.k}</span><span class="value">${r.v}</span></div>`).join('')}
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header"><div class="section-title">Assessment History</div></div>
+                    <div class="assessment-grid">
+                        ${asmnt.map(a => `
+                            <div class="asmnt-box">
+                                <span class="asmnt-year">${a.k}</span>
+                                <span class="asmnt-val">${typeof a.v === 'number' ? '$' + a.v.toLocaleString() : a.v}</span>
                             </div>
                         `).join('')}
                     </div>
                 </div>
 
-                <div class="detail-section">
-                    <div class="section-title">Assessment History</div>
-                    <div class="assessment-grid">
-                        ${assessments.map(a => `
-                            <div class="assessment-box">
-                                <span class="assessment-year">${a.key}</span>
-                                <span class="assessment-amount">${formatCurrency(a.value)}</span>
-                            </div>
-                        `).join('')}
+                <div class="section">
+                    <div class="section-header"><div class="section-title">Ownership & Location</div></div>
+                    <div class="grid-3">
+                        ${location.map(l => `<div class="data-item"><span class="label">${l.k}</span><span class="value">${l.v}</span></div>`).join('')}
                     </div>
                 </div>
 
                 ${notes.map(n => `
-                    <div class="detail-section">
-                        <div class="section-title">${n.key}</div>
-                        <div class="long-text">${n.value}</div>
+                    <div class="section">
+                        <div class="section-header"><div class="section-title">${n.k}</div></div>
+                        <div class="text-block">${n.v}</div>
                     </div>
                 `).join('')}
             </div>
         `;
-
         return card;
     }
 
-    let timeout = null;
+    let searchTimer;
     searchInput.addEventListener('input', (e) => {
-        clearTimeout(timeout);
+        clearTimeout(searchTimer);
         const term = e.target.value.toLowerCase().trim();
 
         if (term.length < 2) {
             resultsList.innerHTML = '';
-            stats.innerText = 'Keep typing to search...';
+            stats.innerText = 'Type at least 2 characters...';
             return;
         }
 
-        timeout = setTimeout(() => {
-            const matches = records.filter(r => 
+        searchTimer = setTimeout(() => {
+            const filtered = records.filter(r => 
                 (r['ADDRESS(COMB)'] && r['ADDRESS(COMB)'].toLowerCase().includes(term)) ||
                 (r['TAX SER NO'] && r['TAX SER NO'].toLowerCase().includes(term))
             );
 
-            stats.innerText = `Found ${matches.length.toLocaleString()} matching records.`;
             resultsList.innerHTML = '';
+            stats.innerText = `Matches: ${filtered.length.toLocaleString()}`;
 
-            if (matches.length === 0) {
-                resultsList.innerHTML = '<div class="no-results">No records found matching that search.</div>';
-                return;
-            }
-
-            // Performance: show first 100
-            const displaySet = matches.slice(0, 100);
-            displaySet.forEach(item => {
-                resultsList.appendChild(createRecordElement(item));
+            filtered.slice(0, 100).forEach(item => {
+                resultsList.appendChild(createRecord(item));
             });
 
-            if (matches.length > 100) {
-                const more = document.createElement('div');
-                more.className = 'no-results';
-                more.innerText = `Showing first 100 of ${matches.length.toLocaleString()} records. Please refine your search to see more.`;
-                resultsList.appendChild(more);
+            if (filtered.length > 100) {
+                const notice = document.createElement('div');
+                notice.style.cssText = 'padding: 40px; text-align: center; color: var(--text-muted); font-weight: 500;';
+                notice.innerText = `Showing first 100 of ${filtered.length.toLocaleString()} results. Refine your search to find more.`;
+                resultsList.appendChild(notice);
             }
-        }, 250);
+        }, 300);
     });
 </script>
 
