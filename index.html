@@ -16,14 +16,7 @@
     --focus: #0ea5e9;
   }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0b1220;
-      --text: #e5e7eb;
-      --muted: #9aa4af;
-      --card: #0f172a;
-      --border: #1f2937;
-      --focus: #38bdf8;
-    }
+    :root { --bg:#0b1220; --text:#e5e7eb; --muted:#9aa4af; --card:#0f172a; --border:#1f2937; --focus:#38bdf8; }
   }
   html, body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); }
   header { padding: 1rem 1.25rem; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
@@ -31,44 +24,32 @@
   .sub { color: var(--muted); font-size: .9rem; }
   .wrap { display: grid; gap: 1rem; grid-template-columns: 1fr; padding: 1rem; max-width: 1200px; margin: 0 auto; }
   @media (min-width: 980px) { .wrap { grid-template-columns: 420px 1fr; } }
-
   .panel { background: var(--card); border: 1px solid var(--border); border-radius: .75rem; padding: 1rem; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-
   .grid-2 { display: grid; grid-template-columns: 1fr; gap: .75rem; }
   @media (min-width: 600px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
-
   label { font-size: .85rem; color: var(--muted); margin-bottom: .25rem; display: block; }
-  .input {
-    display: flex; gap: .5rem; align-items: center;
-    border: 1px solid var(--border); border-radius: .5rem; padding: .5rem .75rem; background: #fff;
-  }
-  @media (prefers-color-scheme: dark) { .input { background: #111827; } }
-  .input input {
-    width: 100%; border: none; outline: none; font-size: 1rem; background: transparent; color: inherit;
-  }
-  .btn { border: 1px solid var(--border); background: #fff; border-radius: .5rem; padding: .5rem .75rem; cursor: pointer; color: inherit; }
+  .input { display:flex; gap:.5rem; align-items:center; border:1px solid var(--border); border-radius:.5rem; padding:.5rem .75rem; background:#fff; }
+  @media (prefers-color-scheme: dark) { .input { background:#111827; } }
+  .input input { width:100%; border:none; outline:none; font-size:1rem; background:transparent; color:inherit; }
+  .btn { border:1px solid var(--border); background:#fff; border-radius:.5rem; padding:.5rem .75rem; cursor:pointer; color:inherit; }
   .btn:hover { border-color: var(--brand); }
-  .count { font-size: .9rem; color: var(--muted); margin-top: .5rem; }
-
-  .results { list-style: none; margin: 0; padding: 0; }
-  .result-item {
-    padding: .75rem; border: 1px solid var(--border); border-radius: .5rem; margin-bottom: .5rem; background: #fff; cursor: pointer;
-  }
-  @media (prefers-color-scheme: dark) { .result-item { background: #0b1220; } }
+  .count { font-size:.9rem; color:var(--muted); margin-top:.5rem; }
+  .results { list-style:none; margin:0; padding:0; }
+  .result-item { padding:.75rem; border:1px solid var(--border); border-radius:.5rem; margin-bottom:.5rem; background:#fff; cursor:pointer; }
+  @media (prefers-color-scheme: dark) { .result-item { background:#0b1220; } }
   .result-item:hover { border-color: var(--brand); }
-  .result-main { font-weight: 600; }
-  .result-sub { color: var(--muted); font-size: .9rem; }
-
-  .detail-title { font-weight: 700; margin: 0 0 .5rem 0; }
-  dl { display: grid; grid-template-columns: minmax(160px, 240px) 1fr; gap: .5rem 1rem; margin: 0; }
-  dt { color: var(--muted); }
-  dd { margin: 0; }
-  .empty { color: var(--muted); font-style: italic; }
-  .pill { display:inline-block; background: #eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; padding:.15rem .4rem; border-radius: .375rem; font-size: .8rem; }
-  .highlight { background: #fff3b0; }
-  .footer { color: var(--muted); font-size: .85rem; padding: 1rem; text-align: center; }
-  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
-  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .result-main { font-weight:600; }
+  .result-sub { color:var(--muted); font-size:.9rem; }
+  .detail-title { font-weight:700; margin:0 0 .5rem 0; }
+  dl { display:grid; grid-template-columns:minmax(160px,240px) 1fr; gap:.5rem 1rem; margin:0; }
+  dt { color:var(--muted); }
+  dd { margin:0; }
+  .empty { color:var(--muted); font-style:italic; }
+  .pill { display:inline-block; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; padding:.15rem .4rem; border-radius:.375rem; font-size:.8rem; }
+  .highlight { background:#fff3b0; }
+  .footer { color:var(--muted); font-size:.85rem; padding: 1rem; text-align:center; }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip: rect(0,0,0,0); border:0; }
+  :focus-visible { outline:2px solid var(--focus); outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -109,51 +90,29 @@
   <footer class="footer">Static site · No login · No cookies</footer>
 
 <script>
-  // ----- Config (mapped to your dataset) -----
   const KEY_TAX  = 'taxSerNo';
   const KEY_ADDR = 'addressComb';
   const TITLE    = 'Assessment History';
 
-  // ----- State -----
   let DATA = [];
-  let LABELS = {}; // key -> label
-  let PRIMARY_KEYS = []; // keys to emphasize
+  let LABELS = {};
+  let PRIMARY_KEYS = [];
 
   const $ = sel => document.querySelector(sel);
-  const $$ = sel => Array.from(document.querySelectorAll(sel));
 
-  // ----- Utils -----
-  const debounce = (fn, ms=200) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
-  const toLabel = (key) => {
-    if (LABELS[key]) return LABELS[key];
-    const s = key
-      .replace(/[_\-]+/g,' ')
-      .replace(/([a-z0-9])([A-Z])/g,'$1 $2')
-      .replace(/\s+/g,' ')
-      .trim();
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  };
+  const debounce = (fn, ms=200) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+  const toLabel = (key) => { const s = String(key).replace(/[_\-]+/g,' ').replace(/([a-z0-9])([A-Z])/g,'$1 $2').replace(/\s+/g,' ').trim(); return s.charAt(0).toUpperCase() + s.slice(1); };
   const escapeHTML = (s) => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',''':'&#39;'}[m]));
-  const highlight = (text, query) => {
-    if (!query) return escapeHTML(text ?? '');
-    try {
-      const rx = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\]/g, '\$&') + ')', 'ig');
-      return escapeHTML(String(text ?? '')).replace(rx, '<mark class="highlight">$1</mark>');
-    } catch {
-      return escapeHTML(text ?? '');
-    }
-  };
+  const highlight = (text, q) => { if (!q) return escapeHTML(text ?? ''); try { const rx = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\]/g, '\$&') + ')', 'ig'); return escapeHTML(String(text ?? '')).replace(rx, '<mark class="highlight">$1</mark>'); } catch { return escapeHTML(text ?? ''); } };
 
-  // ----- Rendering -----
   const renderResults = (rows, qTax, qAddr) => {
     const list = document.getElementById('results');
     list.innerHTML = '';
-    rows.forEach((r) => {
-      const item = document.createElement('li');
-      item.className = 'result-item';
-      item.tabIndex = 0;
-      item.setAttribute('role', 'button');
-      item.setAttribute('aria-label', 'Open details for ' + (r[KEY_TAX] || r[KEY_ADDR] || 'record'));
+    rows.forEach(r => {
+      const li = document.createElement('li');
+      li.className = 'result-item';
+      li.tabIndex = 0; li.setAttribute('role','button');
+      li.setAttribute('aria-label','Open details for ' + (r[KEY_TAX] || r[KEY_ADDR] || 'record'));
 
       const main = document.createElement('div');
       main.className = 'result-main';
@@ -164,70 +123,65 @@
 
       const sub = document.createElement('div');
       sub.className = 'result-sub';
-      sub.textContent = PRIMARY_KEYS
-        .filter(k => k !== KEY_TAX && k !== KEY_ADDR)
-        .map(k => toLabel(k) + ': ' + (r[k] ?? '')).slice(0, 2).join(' · ');
-
-      item.appendChild(main);
-      item.appendChild(sub);
+      sub.textContent = Object.keys(r).filter(k => k!==KEY_TAX && k!==KEY_ADDR).map(k => toLabel(k)+': '+(r[k] ?? '')).slice(0,2).join(' · ');
 
       const open = () => showDetails(r);
-      item.addEventListener('click', open);
-      item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') open(); });
+      li.addEventListener('click', open);
+      li.addEventListener('keydown', e => { if (e.key==='Enter' || e.key===' ') open(); });
 
-      list.appendChild(item);
+      li.appendChild(main); li.appendChild(sub);
+      list.appendChild(li);
     });
-    document.getElementById('resultCount').textContent = rows.length ? (rows.length + ' result' + (rows.length===1?'':'s')) : 'No results';
+    document.getElementById('resultCount').textContent = rows.length ? `${rows.length} result${rows.length===1?'':'s'}` : 'No results';
   };
 
   const showDetails = (row) => {
     const box = document.getElementById('details');
     const keys = Object.keys(row);
     if (!keys.length) { box.innerHTML = '<div class="empty">No data for this record.</div>'; return; }
-
     const dl = document.createElement('dl');
-    keys.forEach(k => {
-      const dt = document.createElement('dt'); dt.textContent = toLabel(k);
-      const dd = document.createElement('dd'); dd.textContent = row[k] ?? '';
-      dl.appendChild(dt); dl.appendChild(dd);
-    });
-
-    box.innerHTML = '';
-    box.appendChild(dl);
+    keys.forEach(k => { const dt = document.createElement('dt'); dt.textContent = toLabel(k); const dd = document.createElement('dd'); dd.textContent = row[k] ?? ''; dl.appendChild(dt); dl.appendChild(dd); });
+    box.innerHTML=''; box.appendChild(dl);
     history.replaceState(null, '', '#' + encodeURIComponent(row[KEY_TAX] ?? row[KEY_ADDR] ?? ''));
   };
 
-  // ----- Filter -----
   const filterData = () => {
     const qTax = document.getElementById('taxSearch').value.trim().toLowerCase();
     const qAddr = document.getElementById('addrSearch').value.trim().toLowerCase();
-
     let rows = DATA;
     if (qTax) rows = rows.filter(r => String(r[KEY_TAX] ?? '').toLowerCase().includes(qTax));
     if (qAddr) rows = rows.filter(r => String(r[KEY_ADDR] ?? '').toLowerCase().includes(qAddr));
-
     renderResults(rows.slice(0, 500), qTax, qAddr);
   };
-  const filterDataDebounced = (fn => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), 150); }; })(filterData);
+  const filterDataDebounced = debounce(filterData, 150);
 
-  // ----- Init -----
-  (async function init() {
-    document.title = TITLE;
-    document.getElementById('title').textContent = TITLE;
+  (async function init(){
+    document.title = TITLE; document.getElementById('title').textContent = TITLE;
 
-    const res = await fetch('data.json', {cache: 'no-store'});
-    DATA = await res.json();
-
-    if (DATA.length) {
-      const sample = DATA[0];
-      PRIMARY_KEYS = Object.keys(sample);
-      LABELS = Object.fromEntries(PRIMARY_KEYS.map(k => [k, toLabel(k)]));
+    try {
+      const res = await fetch('data.json', {cache:'no-store'});
+      if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      const ct = (res.headers.get('content-type')||'').toLowerCase();
+      const text = await res.text();
+      if (ct.includes('application/json')) {
+        DATA = JSON.parse(text);
+      } else {
+        try { DATA = JSON.parse(text); }
+        catch(e){ throw new Error(`Expected JSON, got ${ct||'unknown'}. First 120 chars: ${text.slice(0,120)}`); }
+      }
+    } catch (err) {
+      console.error('Failed to load data.json', err);
+      document.getElementById('resultCount').textContent = 'Load failed';
+      document.getElementById('details').innerHTML = '<div class="empty">Unable to load <code>data.json</code>: ' + (err && err.message ? err.message : 'unknown error') + '<br/>Tips: place <code>data.json</code> next to <code>index.html</code>, ensure exact filename & case, and load via HTTP(S), not file://.</div>';
+      return;
     }
+
+    if (DATA.length) { const sample = DATA[0]; PRIMARY_KEYS = Object.keys(sample); LABELS = Object.fromEntries(PRIMARY_KEYS.map(k=>[k,toLabel(k)])); }
 
     document.getElementById('taxSearch').addEventListener('input', filterDataDebounced);
     document.getElementById('addrSearch').addEventListener('input', filterDataDebounced);
-    document.getElementById('clearTax').addEventListener('click', () => { document.getElementById('taxSearch').value = ''; filterData(); });
-    document.getElementById('clearAddr').addEventListener('click', () => { document.getElementById('addrSearch').value = ''; filterData(); });
+    document.getElementById('clearTax').addEventListener('click', () => { document.getElementById('taxSearch').value=''; filterData(); });
+    document.getElementById('clearAddr').addEventListener('click', () => { document.getElementById('addrSearch').value=''; filterData(); });
 
     filterData();
 
