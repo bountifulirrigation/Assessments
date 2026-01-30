@@ -3,133 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property Assessment Search</title>
+    <title>Property Assessment Portal</title>
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #3498db;
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --text-color: #333;
+            --primary: #1a2a3a;
+            --secondary: #34495e;
+            --accent: #2980b9;
+            --bg: #f0f2f5;
+            --white: #ffffff;
+            --border: #dcdde1;
+            --text: #2f3640;
+            --muted: #7f8c8d;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
             padding: 20px;
+            line-height: 1.5;
         }
+
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
         }
+
         header {
             text-align: center;
-            margin-bottom: 40px;
+            padding: 20px 0 40px;
         }
+
         h1 {
-            color: var(--primary-color);
-            margin-bottom: 10px;
+            margin: 0;
+            color: var(--primary);
+            font-size: 2.2rem;
+            letter-spacing: -0.5px;
         }
-        .search-container {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+
+        .search-wrapper {
             position: sticky;
             top: 20px;
-            z-index: 100;
+            z-index: 1000;
+            background: var(--bg);
+            padding: 10px 0;
         }
+
+        .search-box {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         input[type="text"] {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1.1rem;
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        input[type="text"]:focus {
-            border-color: var(--accent-color);
-        }
-        .results-info {
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-        #results-list {
-            display: grid;
-            gap: 20px;
-        }
-        .record-card {
-            background: var(--card-bg);
+            padding: 15px 20px;
+            border: 2px solid var(--border);
             border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border-left: 5px solid var(--accent-color);
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-sizing: border-box;
         }
-        .record-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px rgba(41, 128, 185, 0.2);
         }
-        .record-header {
+
+        .stats {
+            font-size: 0.9rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        #results {
+            margin-top: 30px;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        .record-header h3 {
-            margin: 0;
-            color: var(--primary-color);
-            font-size: 1.2rem;
-        }
-        .serial-tag {
-            background: #e1e8ed;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #555;
-        }
-        .record-details {
-            display: none;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        .record-card.active .record-details {
-            display: block;
-        }
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            flex-direction: column;
             gap: 15px;
         }
-        .detail-item {
-            margin-bottom: 10px;
+
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
-        .detail-label {
-            font-weight: bold;
-            color: #7f8c8d;
-            font-size: 0.75rem;
-            text-transform: uppercase;
+
+        .card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            padding: 20px;
+            background: var(--white);
+        }
+
+        .address-line {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
             display: block;
-            margin-bottom: 2px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
         }
-        .detail-value {
-            font-size: 1rem;
-            color: var(--primary-color);
+
+        .serial-line {
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
+        .serial-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--muted);
+            letter-spacing: 1px;
+        }
+
+        .card-content {
+            display: none;
+            padding: 0 20px 25px;
+            border-top: 1px solid var(--border);
+            background: #fdfdfd;
+        }
+
+        .card.expanded .card-content {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin: 25px 0 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--bg);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .data-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .label {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .value {
+            font-size: 0.95rem;
+            color: var(--secondary);
+            font-weight: 500;
+            word-break: break-word;
+        }
+
         .full-width {
             grid-column: 1 / -1;
         }
-        .loading {
+
+        /* Assessment Years styling */
+        .asmnt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--bg);
+        }
+
+        .asmnt-item {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 3px solid #bdc3c7;
+        }
+
+        .asmnt-year {
+            font-size: 0.7rem;
+            color: var(--muted);
+            font-weight: bold;
+        }
+
+        .asmnt-val {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .loading-overlay {
             text-align: center;
-            font-style: italic;
-            color: #888;
+            padding: 50px;
+            color: var(--muted);
+        }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            h1 { font-size: 1.6rem; }
+            .address-line { font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -137,109 +231,147 @@
 
 <div class="container">
     <header>
-        <h1>Property Assessments</h1>
-        <p>Official records portal for assessment inquiries</p>
+        <h1>Property Assessment Portal</h1>
     </header>
 
-    <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Search by Address or Tax Serial..." autocomplete="off">
-        <div class="results-info" id="resultsCount">Start typing to search 11,000+ records...</div>
+    <div class="search-wrapper">
+        <div class="search-box">
+            <input type="text" id="search" placeholder="Search Address or Serial Number..." autofocus>
+            <div id="stats" class="stats">Loading records...</div>
+        </div>
     </div>
 
-    <div id="loading" class="loading">Loading database...</div>
-    <div id="results-list"></div>
+    <div id="loading" class="loading-overlay">
+        <h3>Initializing Database...</h3>
+        <p>Please wait while we load 11,000+ records.</p>
+    </div>
+
+    <div id="results"></div>
 </div>
 
 <script>
-    let records = [];
-    const searchInput = document.getElementById('searchInput');
-    const resultsList = document.getElementById('results-list');
-    const resultsCount = document.getElementById('resultsCount');
-    const loading = document.getElementById('loading');
+    let data = [];
+    const searchInput = document.getElementById('search');
+    const resultsDiv = document.getElementById('results');
+    const statsDiv = document.getElementById('stats');
+    const loadingDiv = document.getElementById('loading');
 
-    // Load the JSON data
+    // Fetch data
     fetch('data.json')
-        .then(response => response.json())
-        .then(data => {
-            records = data;
-            loading.style.display = 'none';
+        .then(res => res.json())
+        .then(json => {
+            data = json;
+            loadingDiv.style.display = 'none';
+            statsDiv.innerText = `Search across ${data.length.toLocaleString()} property records`;
         })
         .catch(err => {
-            loading.innerHTML = "Error loading data. Make sure data.json is in the same directory.";
-            console.error(err);
+            loadingDiv.innerHTML = "<h3>Error loading data</h3><p>Make sure data.json is in the same folder as this file.</p>";
         });
 
-    function createDetailItem(label, value, fullWidth = false) {
-        if (!value || value === 'N/A') return '';
-        return `
-            <div class="detail-item ${fullWidth ? 'full-width' : ''}">
-                <span class="detail-label">${label}</span>
-                <span class="detail-value">${value}</span>
+    function formatValue(val) {
+        if (val === 'N/A' || val === null || val === undefined) return '<span style="color:#ccc">N/A</span>';
+        if (typeof val === 'number') return val.toLocaleString();
+        return val;
+    }
+
+    function createCard(item) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = () => card.classList.toggle('expanded');
+
+        // Separate assessment columns from general info
+        const infoItems = [];
+        const asmntItems = [];
+        const descriptionItems = [];
+
+        Object.keys(item).forEach(key => {
+            if (key.includes('ASMNT') || key.includes('ASSESSM')) {
+                asmntItems.push({key, val: item[key]});
+            } else if (['Special Notes', 'Other Description', 'Legal Description'].includes(key)) {
+                descriptionItems.push({key, val: item[key]});
+            } else if (!['TAX SER NO', 'ADDRESS(COMB)'].includes(key)) {
+                infoItems.push({key, val: item[key]});
+            }
+        });
+
+        // HTML building
+        let contentHtml = `
+            <div class="card-header">
+                <span class="address-line">${item['ADDRESS(COMB)']}</span>
+                <div class="serial-line">
+                    <span class="serial-label">Serial Number:</span>
+                    <span>${item['TAX SER NO']}</span>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="section-title">Property Information</div>
+                <div class="grid">
+                    ${infoItems.map(i => `
+                        <div class="data-item">
+                            <span class="label">${i.key}</span>
+                            <span class="value">${formatValue(i.val)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="section-title">Assessment History</div>
+                <div class="asmnt-grid">
+                    ${asmntItems.map(i => `
+                        <div class="asmnt-item">
+                            <span class="asmnt-year">${i.key}</span>
+                            <div class="asmnt-val">${i.val !== 'N/A' ? '$' + formatValue(i.val) : 'N/A'}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                ${descriptionItems.map(i => `
+                    <div class="section-title">${i.key}</div>
+                    <div class="value" style="background:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #eee;">
+                        ${formatValue(i.val)}
+                    </div>
+                `).join('')}
             </div>
         `;
+
+        card.innerHTML = contentHtml;
+        return card;
     }
 
-    function renderRecords(filtered) {
-        resultsList.innerHTML = '';
-        
-        if (filtered.length === 0) {
-            resultsCount.textContent = "No records found.";
-            return;
-        }
-
-        resultsCount.textContent = `Showing ${filtered.length} matching records (Showing first 50 results for performance)`;
-
-        // Limit display to 50 for performance
-        const displayLimit = filtered.slice(0, 50);
-
-        displayLimit.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'record-card';
-            card.onclick = () => card.classList.toggle('active');
-
-            card.innerHTML = `
-                <div class="record-header">
-                    <div>
-                        <h3>${item.address}</h3>
-                        <small>${item.owner}</small>
-                    </div>
-                    <span class="serial-tag">Serial: ${item.serial}</span>
-                </div>
-                <div class="record-details">
-                    <div class="details-grid">
-                        ${createDetailItem('Status', item.status)}
-                        ${createDetailItem('Acreage', item.acreage)}
-                        ${createDetailItem('Owner Name', item.owner)}
-                        ${createDetailItem('Owner Address', item.owner_address)}
-                        ${createDetailItem('2023 Assessment', item.asmnt_2023)}
-                        ${createDetailItem('2024 Assessment', item.asmnt_2024)}
-                        ${createDetailItem('2025 Rate', item.rate_2025)}
-                        ${createDetailItem('Services', item.services)}
-                        ${createDetailItem('Description', item.description, true)}
-                        ${createDetailItem('Special Notes', item.notes, true)}
-                        ${createDetailItem('Legal Description', item.legal, true)}
-                    </div>
-                </div>
-            `;
-            resultsList.appendChild(card);
-        });
-    }
-
+    let searchTimeout;
     searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase().trim();
-        
-        if (term.length < 2) {
-            resultsList.innerHTML = '';
-            resultsCount.textContent = "Please enter at least 2 characters to search.";
+        clearTimeout(searchTimeout);
+        const query = e.target.value.toLowerCase().trim();
+
+        if (query.length < 2) {
+            resultsDiv.innerHTML = '';
+            statsDiv.innerText = `Enter at least 2 characters to search...`;
             return;
         }
 
-        const filtered = records.filter(r => 
-            r.serial.toLowerCase().includes(term) || 
-            r.address.toLowerCase().includes(term)
-        );
+        searchTimeout = setTimeout(() => {
+            const filtered = data.filter(item => 
+                item['ADDRESS(COMB)'].toLowerCase().includes(query) || 
+                item['TAX SER NO'].toLowerCase().includes(query)
+            );
 
-        renderRecords(filtered);
+            resultsDiv.innerHTML = '';
+            statsDiv.innerText = `Found ${filtered.length.toLocaleString()} records`;
+
+            // Display first 100 for performance
+            const toDisplay = filtered.slice(0, 100);
+            toDisplay.forEach(item => {
+                resultsDiv.appendChild(createCard(item));
+            });
+
+            if (filtered.length > 100) {
+                const more = document.createElement('div');
+                more.style.textAlign = 'center';
+                more.style.padding = '20px';
+                more.style.color = '#7f8c8d';
+                more.innerText = '-- Showing top 100 results, please refine your search for more specific data --';
+                resultsDiv.appendChild(more);
+            }
+        }, 300);
     });
 </script>
 
