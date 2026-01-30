@@ -3,375 +3,415 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property Assessment Portal</title>
+    <title>Property Assessment Portal - 2025</title>
     <style>
         :root {
-            --primary: #1a2a3a;
-            --secondary: #34495e;
-            --accent: #2980b9;
-            --bg: #f0f2f5;
+            --primary: #003366;
+            --secondary: #4a5568;
+            --accent: #d97706;
+            --bg: #f8fafc;
             --white: #ffffff;
-            --border: #dcdde1;
-            --text: #2f3640;
-            --muted: #7f8c8d;
+            --border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
-            color: var(--text);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
-            line-height: 1.5;
+            padding: 0;
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
 
         header {
+            padding: 40px 0;
             text-align: center;
-            padding: 20px 0 40px;
         }
 
         h1 {
-            margin: 0;
+            font-size: 2.5rem;
             color: var(--primary);
-            font-size: 2.2rem;
-            letter-spacing: -0.5px;
+            margin: 0;
+            font-weight: 800;
         }
 
-        .search-wrapper {
+        .search-area {
             position: sticky;
-            top: 20px;
-            z-index: 1000;
+            top: 0;
             background: var(--bg);
-            padding: 10px 0;
+            padding: 20px 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
         }
 
-        .search-box {
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto;
             background: var(--white);
+            padding: 10px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            padding: 15px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 15px 20px;
-            border: 2px solid var(--border);
+            padding: 16px 20px;
+            border: 2px solid transparent;
+            background: #f1f5f9;
             border-radius: 8px;
             font-size: 1.1rem;
             outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            transition: all 0.2s;
             box-sizing: border-box;
         }
 
         input[type="text"]:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 8px rgba(41, 128, 185, 0.2);
+            background: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(0, 51, 102, 0.1);
         }
 
         .stats {
+            padding: 0 10px;
             font-size: 0.9rem;
-            color: var(--muted);
+            color: var(--text-muted);
             font-weight: 500;
         }
 
-        #results {
+        #results-list {
             margin-top: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            display: grid;
+            gap: 16px;
         }
 
-        .card {
+        .record-card {
             background: var(--white);
-            border-radius: 12px;
             border: 1px solid var(--border);
+            border-radius: 12px;
             overflow: hidden;
-            transition: all 0.2s ease;
+            transition: transform 0.1s, border-color 0.2s;
             cursor: pointer;
         }
 
-        .card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        .record-card:hover {
+            border-color: var(--primary);
         }
 
-        .card-header {
-            padding: 20px;
-            background: var(--white);
+        .record-header {
+            padding: 24px;
         }
 
-        .address-line {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--primary);
+        .address-title {
             display: block;
-            margin-bottom: 5px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
             text-transform: uppercase;
+            margin-bottom: 4px;
         }
 
-        .serial-line {
-            font-size: 1.1rem;
-            color: var(--accent);
+        .serial-subtitle {
+            display: block;
+            font-size: 1.2rem;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: var(--accent);
         }
 
         .serial-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            color: var(--muted);
-            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-right: 6px;
+            letter-spacing: 0.05em;
         }
 
-        .card-content {
+        .record-body {
             display: none;
-            padding: 0 20px 25px;
+            padding: 0 24px 24px;
             border-top: 1px solid var(--border);
-            background: #fdfdfd;
+            background: #fafafa;
         }
 
-        .card.expanded .card-content {
+        .record-card.expanded .record-body {
             display: block;
+        }
+
+        .detail-section {
+            margin-top: 24px;
         }
 
         .section-title {
             font-size: 0.85rem;
             font-weight: 700;
-            color: var(--muted);
             text-transform: uppercase;
-            letter-spacing: 1.2px;
-            margin: 25px 0 15px;
-            padding-bottom: 5px;
-            border-bottom: 2px solid var(--bg);
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 6px;
+            margin-bottom: 16px;
+            letter-spacing: 0.05em;
         }
 
-        .grid {
+        .details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
         }
 
-        .data-item {
+        .assessment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .detail-item {
             display: flex;
             flex-direction: column;
         }
 
-        .label {
-            font-size: 0.75rem;
-            color: var(--muted);
-            font-weight: 600;
+        .detail-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
             text-transform: uppercase;
+            margin-bottom: 2px;
         }
 
-        .value {
+        .detail-value {
             font-size: 0.95rem;
-            color: var(--secondary);
             font-weight: 500;
-            word-break: break-word;
+            color: var(--text-main);
+            word-break: break-all;
+        }
+
+        .assessment-box {
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .assessment-year {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .assessment-amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
         }
 
         .full-width {
             grid-column: 1 / -1;
         }
 
-        /* Assessment Years styling */
-        .asmnt-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
+        .long-text {
             background: #fff;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
-            border: 1px solid var(--bg);
+            border: 1px solid var(--border);
+            white-space: pre-wrap;
+            font-size: 0.9rem;
         }
 
-        .asmnt-item {
-            background: #f8f9fa;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border-left: 3px solid #bdc3c7;
-        }
-
-        .asmnt-year {
-            font-size: 0.7rem;
-            color: var(--muted);
-            font-weight: bold;
-        }
-
-        .asmnt-val {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .loading-overlay {
+        .no-results {
             text-align: center;
-            padding: 50px;
-            color: var(--muted);
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 1.1rem;
         }
 
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: 1fr; }
-            h1 { font-size: 1.6rem; }
-            .address-line { font-size: 1.1rem; }
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
+<div id="loading-screen">
+    <div class="spinner"></div>
+    <p style="margin-top: 20px; font-weight: 600;">Loading 14,000+ Records...</p>
+</div>
+
 <div class="container">
     <header>
-        <h1>Property Assessment Portal</h1>
+        <h1>Property Assessment Database</h1>
     </header>
 
-    <div class="search-wrapper">
-        <div class="search-box">
-            <input type="text" id="search" placeholder="Search Address or Serial Number..." autofocus>
-            <div id="stats" class="stats">Loading records...</div>
+    <div class="search-area">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Enter Address or Tax Serial Number..." autofocus autocomplete="off">
+            <div id="search-stats" class="stats">Ready to search.</div>
         </div>
     </div>
 
-    <div id="loading" class="loading-overlay">
-        <h3>Initializing Database...</h3>
-        <p>Please wait while we load 11,000+ records.</p>
-    </div>
-
-    <div id="results"></div>
+    <div id="results-list"></div>
 </div>
 
 <script>
-    let data = [];
-    const searchInput = document.getElementById('search');
-    const resultsDiv = document.getElementById('results');
-    const statsDiv = document.getElementById('stats');
-    const loadingDiv = document.getElementById('loading');
+    let records = [];
+    const searchInput = document.getElementById('search-input');
+    const resultsList = document.getElementById('results-list');
+    const stats = document.getElementById('search-stats');
+    const loader = document.getElementById('loading-screen');
 
-    // Fetch data
+    // Load data
     fetch('data.json')
         .then(res => res.json())
-        .then(json => {
-            data = json;
-            loadingDiv.style.display = 'none';
-            statsDiv.innerText = `Search across ${data.length.toLocaleString()} property records`;
+        .then(data => {
+            records = data;
+            loader.style.display = 'none';
+            stats.innerText = `Searching ${records.length.toLocaleString()} records.`;
         })
         .catch(err => {
-            loadingDiv.innerHTML = "<h3>Error loading data</h3><p>Make sure data.json is in the same folder as this file.</p>";
+            console.error(err);
+            loader.innerHTML = '<p style="color:red">Error loading database. Please check the data.json file.</p>';
         });
 
-    function formatValue(val) {
-        if (val === 'N/A' || val === null || val === undefined) return '<span style="color:#ccc">N/A</span>';
-        if (typeof val === 'number') return val.toLocaleString();
-        return val;
+    function formatCurrency(val) {
+        if (val === 'N/A' || val === '') return 'N/A';
+        const num = parseFloat(val);
+        if (isNaN(num)) return val;
+        return '$' + num.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
 
-    function createCard(item) {
+    function createRecordElement(item) {
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'record-card';
         card.onclick = () => card.classList.toggle('expanded');
 
-        // Separate assessment columns from general info
-        const infoItems = [];
-        const asmntItems = [];
-        const descriptionItems = [];
+        const address = item['ADDRESS(COMB)'] || 'NO ADDRESS';
+        const serial = item['TAX SER NO'] || 'Unknown';
 
-        Object.keys(item).forEach(key => {
+        // Separate assessment columns and general columns
+        const assessments = [];
+        const general = [];
+        const notes = [];
+
+        Object.entries(item).forEach(([key, value]) => {
+            if (key === 'ADDRESS(COMB)' || key === 'TAX SER NO') return;
+            
             if (key.includes('ASMNT') || key.includes('ASSESSM')) {
-                asmntItems.push({key, val: item[key]});
-            } else if (['Special Notes', 'Other Description', 'Legal Description'].includes(key)) {
-                descriptionItems.push({key, val: item[key]});
-            } else if (!['TAX SER NO', 'ADDRESS(COMB)'].includes(key)) {
-                infoItems.push({key, val: item[key]});
+                assessments.push({ key, value });
+            } else if (['Special Notes', 'Other Description', 'Legal Description', 'Priors', 'Futures'].includes(key)) {
+                notes.push({ key, value });
+            } else {
+                general.push({ key, value });
             }
         });
 
-        // HTML building
-        let contentHtml = `
-            <div class="card-header">
-                <span class="address-line">${item['ADDRESS(COMB)']}</span>
-                <div class="serial-line">
-                    <span class="serial-label">Serial Number:</span>
-                    <span>${item['TAX SER NO']}</span>
-                </div>
+        card.innerHTML = `
+            <div class="record-header">
+                <span class="address-title">${address}</span>
+                <span class="serial-subtitle"><span class="serial-label">Tax Serial:</span>${serial}</span>
             </div>
-            <div class="card-content">
-                <div class="section-title">Property Information</div>
-                <div class="grid">
-                    ${infoItems.map(i => `
-                        <div class="data-item">
-                            <span class="label">${i.key}</span>
-                            <span class="value">${formatValue(i.val)}</span>
-                        </div>
-                    `).join('')}
+            <div class="record-body">
+                <div class="detail-section">
+                    <div class="section-title">Property Details</div>
+                    <div class="details-grid">
+                        ${general.map(g => `
+                            <div class="detail-item">
+                                <span class="detail-label">${g.key}</span>
+                                <span class="detail-value">${g.value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
 
-                <div class="section-title">Assessment History</div>
-                <div class="asmnt-grid">
-                    ${asmntItems.map(i => `
-                        <div class="asmnt-item">
-                            <span class="asmnt-year">${i.key}</span>
-                            <div class="asmnt-val">${i.val !== 'N/A' ? '$' + formatValue(i.val) : 'N/A'}</div>
-                        </div>
-                    `).join('')}
+                <div class="detail-section">
+                    <div class="section-title">Assessment History</div>
+                    <div class="assessment-grid">
+                        ${assessments.map(a => `
+                            <div class="assessment-box">
+                                <span class="assessment-year">${a.key}</span>
+                                <span class="assessment-amount">${formatCurrency(a.value)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
 
-                ${descriptionItems.map(i => `
-                    <div class="section-title">${i.key}</div>
-                    <div class="value" style="background:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #eee;">
-                        ${formatValue(i.val)}
+                ${notes.map(n => `
+                    <div class="detail-section">
+                        <div class="section-title">${n.key}</div>
+                        <div class="long-text">${n.value}</div>
                     </div>
                 `).join('')}
             </div>
         `;
 
-        card.innerHTML = contentHtml;
         return card;
     }
 
-    let searchTimeout;
+    let timeout = null;
     searchInput.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        const query = e.target.value.toLowerCase().trim();
+        clearTimeout(timeout);
+        const term = e.target.value.toLowerCase().trim();
 
-        if (query.length < 2) {
-            resultsDiv.innerHTML = '';
-            statsDiv.innerText = `Enter at least 2 characters to search...`;
+        if (term.length < 2) {
+            resultsList.innerHTML = '';
+            stats.innerText = 'Keep typing to search...';
             return;
         }
 
-        searchTimeout = setTimeout(() => {
-            const filtered = data.filter(item => 
-                item['ADDRESS(COMB)'].toLowerCase().includes(query) || 
-                item['TAX SER NO'].toLowerCase().includes(query)
+        timeout = setTimeout(() => {
+            const matches = records.filter(r => 
+                (r['ADDRESS(COMB)'] && r['ADDRESS(COMB)'].toLowerCase().includes(term)) ||
+                (r['TAX SER NO'] && r['TAX SER NO'].toLowerCase().includes(term))
             );
 
-            resultsDiv.innerHTML = '';
-            statsDiv.innerText = `Found ${filtered.length.toLocaleString()} records`;
+            stats.innerText = `Found ${matches.length.toLocaleString()} matching records.`;
+            resultsList.innerHTML = '';
 
-            // Display first 100 for performance
-            const toDisplay = filtered.slice(0, 100);
-            toDisplay.forEach(item => {
-                resultsDiv.appendChild(createCard(item));
+            if (matches.length === 0) {
+                resultsList.innerHTML = '<div class="no-results">No records found matching that search.</div>';
+                return;
+            }
+
+            // Performance: show first 100
+            const displaySet = matches.slice(0, 100);
+            displaySet.forEach(item => {
+                resultsList.appendChild(createRecordElement(item));
             });
 
-            if (filtered.length > 100) {
+            if (matches.length > 100) {
                 const more = document.createElement('div');
-                more.style.textAlign = 'center';
-                more.style.padding = '20px';
-                more.style.color = '#7f8c8d';
-                more.innerText = '-- Showing top 100 results, please refine your search for more specific data --';
-                resultsDiv.appendChild(more);
+                more.className = 'no-results';
+                more.innerText = `Showing first 100 of ${matches.length.toLocaleString()} records. Please refine your search to see more.`;
+                resultsList.appendChild(more);
             }
-        }, 300);
+        }, 250);
     });
 </script>
 
