@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -71,88 +72,171 @@
 </style>
 </head>
 <body>
-<header>
-  <h1 id="title">Assessment History</h1>
-  <div class="sub">Search by Tax Serial or Address, then select a record to view full details.</div>
-</header>
+  <header>
+    <h1 id="title">Assessment History</h1>
+    <div class="sub">Search by Tax Serial or Address, then select a record to view full details.</div>
+  </header>
 
-<main class="wrap">
-<section class="panel">
-  <div class="grid-2">
-    <div>
-      <label for="taxSearch">Tax Serial</label>
-      <div class="input">
-        <input id="taxSearch" type="search" />
-        <button class="btn" id="clearTax" type="button">✕</button>
+  <main class="wrap" role="main">
+    <section class="panel" aria-labelledby="searchHeading">
+      <h2 id="searchHeading" class="sr-only">Search</h2>
+      <div class="grid-2">
+        <div>
+          <label for="taxSearch">Tax Serial</label>
+          <div class="input">
+            <input id="taxSearch" type="search" placeholder="e.g., 12-345-6789" autocomplete="off" />
+            <button class="btn" id="clearTax" type="button" aria-label="Clear tax search">✕</button>
+          </div>
+        </div>
+        <div>
+          <label for="addrSearch">Address</label>
+          <div class="input">
+            <input id="addrSearch" type="search" placeholder="e.g., 123 Main St" autocomplete="off" />
+            <button class="btn" id="clearAddr" type="button" aria-label="Clear address search">✕</button>
+          </div>
+        </div>
       </div>
-    </div>
-    <div>
-      <label for="addrSearch">Address</label>
-      <div class="input">
-        <input id="addrSearch" type="search" />
-        <button class="btn" id="clearAddr" type="button">✕</button>
-      </div>
-    </div>
-  </div>
-  <div class="count" id="resultCount">Loading data…</div>
-  <ul class="results" id="results"></ul>
-</section>
+      <div class="count" id="resultCount" role="status" aria-live="polite">Loading data…</div>
+      <ul class="results" id="results" aria-label="Search results"></ul>
+    </section>
 
-<aside class="panel">
-  <h2 class="detail-title">Details</h2>
-  <div id="details" class="empty">Select a record to view its details.</div>
-</aside>
-</main>
+    <aside class="panel" aria-labelledby="detailsHeading">
+      <h2 id="detailsHeading" class="detail-title">Details</h2>
+      <div id="details" class="empty">Select a record to view its details.</div>
+    </aside>
+  </main>
 
-<footer class="footer">Static site · No login · No cookies</footer>
+  <footer class="footer">Static site · No login · No cookies</footer>
 
 <script>
-const KEY_TAX = 'taxSerNo';
-const KEY_ADDR = 'addressComb';
-let DATA = [];
+  // ----- Config (mapped to your dataset) -----
+  const KEY_TAX  = 'taxSerNo';
+  const KEY_ADDR = 'addressComb';
+  const TITLE    = 'Assessment History';
 
-const escapeHTML = (s) =>
-  String(s).replace(/[&<>"']/g, m => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  }[m]));
+  // ----- State -----
+  let DATA = [];
+  let LABELS = {}; // key -> label
+  let PRIMARY_KEYS = []; // keys to emphasize
 
-function render(rows) {
-  const ul = document.getElementById('results');
-  ul.innerHTML = '';
-  rows.forEach(r => {
-    const li = document.createElement('li');
-    li.className = 'result-item';
-    li.textContent = (r[KEY_TAX] || '') + ' — ' + (r[KEY_ADDR] || '');
-    li.onclick = () => {
-      document.getElementById('details').innerHTML =
-        '<pre>' + escapeHTML(JSON.stringify(r, null, 2)) + '</pre>';
-    };
-    ul.appendChild(li);
-  });
-  document.getElementById('resultCount').textContent =
-    rows.length + ' result' + (rows.length === 1 ? '' : 's');
-}
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
 
-function filter() {
-  const t = taxSearch.value.toLowerCase();
-  const a = addrSearch.value.toLowerCase();
-  render(DATA.filter(r =>
-    (!t || String(r[KEY_TAX]||'').toLowerCase().includes(t)) &&
-    (!a || String(r[KEY_ADDR]||'').toLowerCase().includes(a))
-  ));
-}
+  // ----- Utils -----
+  const debounce = (fn, ms=200) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
+  const toLabel = (key) => {
+    if (LABELS[key]) return LABELS[key];
+    const s = key
+      .replace(/[_\-]+/g,' ')
+      .replace(/([a-z0-9])([A-Z])/g,'$1 $2')
+      .replace(/\s+/g,' ')
+      .trim();
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  };
+  const escapeHTML = (s) => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',''':'&#39;'}[m]));
+  const highlight = (text, query) => {
+    if (!query) return escapeHTML(text ?? '');
+    try {
+      const rx = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\]/g, '\$&') + ')', 'ig');
+      return escapeHTML(String(text ?? '')).replace(rx, '<mark class="highlight">$1</mark>');
+    } catch {
+      return escapeHTML(text ?? '');
+    }
+  };
 
-fetch('data.json')
-  .then(r => r.json())
-  .then(j => { DATA = j; filter(); });
+  // ----- Rendering -----
+  const renderResults = (rows, qTax, qAddr) => {
+    const list = document.getElementById('results');
+    list.innerHTML = '';
+    rows.forEach((r) => {
+      const item = document.createElement('li');
+      item.className = 'result-item';
+      item.tabIndex = 0;
+      item.setAttribute('role', 'button');
+      item.setAttribute('aria-label', 'Open details for ' + (r[KEY_TAX] || r[KEY_ADDR] || 'record'));
 
-taxSearch.oninput = addrSearch.oninput = filter;
-clearTax.onclick = () => { taxSearch.value=''; filter(); };
-clearAddr.onclick = () => { addrSearch.value=''; filter(); };
+      const main = document.createElement('div');
+      main.className = 'result-main';
+      const parts = [];
+      if (KEY_TAX in r) parts.push('Tax: ' + highlight(r[KEY_TAX], qTax));
+      if (KEY_ADDR in r) parts.push('<span class="pill">' + highlight(r[KEY_ADDR], qAddr) + '</span>');
+      main.innerHTML = parts.join(' · ');
+
+      const sub = document.createElement('div');
+      sub.className = 'result-sub';
+      sub.textContent = PRIMARY_KEYS
+        .filter(k => k !== KEY_TAX && k !== KEY_ADDR)
+        .map(k => toLabel(k) + ': ' + (r[k] ?? '')).slice(0, 2).join(' · ');
+
+      item.appendChild(main);
+      item.appendChild(sub);
+
+      const open = () => showDetails(r);
+      item.addEventListener('click', open);
+      item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') open(); });
+
+      list.appendChild(item);
+    });
+    document.getElementById('resultCount').textContent = rows.length ? (rows.length + ' result' + (rows.length===1?'':'s')) : 'No results';
+  };
+
+  const showDetails = (row) => {
+    const box = document.getElementById('details');
+    const keys = Object.keys(row);
+    if (!keys.length) { box.innerHTML = '<div class="empty">No data for this record.</div>'; return; }
+
+    const dl = document.createElement('dl');
+    keys.forEach(k => {
+      const dt = document.createElement('dt'); dt.textContent = toLabel(k);
+      const dd = document.createElement('dd'); dd.textContent = row[k] ?? '';
+      dl.appendChild(dt); dl.appendChild(dd);
+    });
+
+    box.innerHTML = '';
+    box.appendChild(dl);
+    history.replaceState(null, '', '#' + encodeURIComponent(row[KEY_TAX] ?? row[KEY_ADDR] ?? ''));
+  };
+
+  // ----- Filter -----
+  const filterData = () => {
+    const qTax = document.getElementById('taxSearch').value.trim().toLowerCase();
+    const qAddr = document.getElementById('addrSearch').value.trim().toLowerCase();
+
+    let rows = DATA;
+    if (qTax) rows = rows.filter(r => String(r[KEY_TAX] ?? '').toLowerCase().includes(qTax));
+    if (qAddr) rows = rows.filter(r => String(r[KEY_ADDR] ?? '').toLowerCase().includes(qAddr));
+
+    renderResults(rows.slice(0, 500), qTax, qAddr);
+  };
+  const filterDataDebounced = (fn => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), 150); }; })(filterData);
+
+  // ----- Init -----
+  (async function init() {
+    document.title = TITLE;
+    document.getElementById('title').textContent = TITLE;
+
+    const res = await fetch('data.json', {cache: 'no-store'});
+    DATA = await res.json();
+
+    if (DATA.length) {
+      const sample = DATA[0];
+      PRIMARY_KEYS = Object.keys(sample);
+      LABELS = Object.fromEntries(PRIMARY_KEYS.map(k => [k, toLabel(k)]));
+    }
+
+    document.getElementById('taxSearch').addEventListener('input', filterDataDebounced);
+    document.getElementById('addrSearch').addEventListener('input', filterDataDebounced);
+    document.getElementById('clearTax').addEventListener('click', () => { document.getElementById('taxSearch').value = ''; filterData(); });
+    document.getElementById('clearAddr').addEventListener('click', () => { document.getElementById('addrSearch').value = ''; filterData(); });
+
+    filterData();
+
+    const hash = decodeURIComponent(location.hash.slice(1));
+    if (hash && DATA.length) {
+      const cand = DATA.find(r => r[KEY_TAX] == hash || r[KEY_ADDR] == hash);
+      if (cand) showDetails(cand);
+    }
+  })();
 </script>
 </body>
 </html>
