@@ -14,7 +14,7 @@
         .search-container { max-width: 800px; margin: 0 auto; background: var(--card-bg); padding: 8px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid var(--border); }
         #search-input { width: 100%; padding: 16px 24px; border: none; background: #f8fafc; border-radius: 12px; font-size: 1.125rem; outline: none; }
         #results-list { margin-top: 24px; display: flex; flex-direction: column; gap: 20px; }
-        .record-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; cursor: pointer; }
+        .record-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; cursor: pointer; margin-bottom: 10px; }
         .record-header { padding: 24px; }
         .address-title { display: block; font-size: 1.5rem; font-weight: 800; color: var(--primary); }
         .serial-subtitle { display: inline-flex; align-items: center; background: var(--accent-light); color: var(--accent); padding: 4px 12px; border-radius: 9999px; font-weight: 700; font-size: 0.875rem; margin-top: 8px; }
@@ -38,63 +38,81 @@
     </style>
 </head>
 <body>
-<div id="loader"><h2 id="status-text">Loading Database...</h2><p id="error-log" style="color: red;"></p></div>
+<div id="loader"><h2>Loading Database...</h2></div>
 <div class="container">
     <header><h1>Property Assessment Portal</h1></header>
-    <div class="search-area">
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="Search Address or Serial Number..." autocomplete="off">
-        </div>
-    </div>
+    <div class="search-area"><div class="search-container"><input type="text" id="search-input" placeholder="Search Address or Serial Number..." autocomplete="off"></div></div>
     <div id="results-list"></div>
 </div>
 <script>
     let records = [];
     const searchInput = document.getElementById('search-input');
     const resultsList = document.getElementById('results-list');
+
     fetch('data.json')
-        .then(res => { if (!res.ok) throw new Error("Could not find data.json"); return res.json(); })
-        .then(data => { records = data; document.getElementById('loader').style.display = 'none'; })
-        .catch(err => { document.getElementById('status-text').innerText = "Load Failed"; document.getElementById('error-log').innerText = err.message; });
+        .then(res => res.json())
+        .then(data => { records = data; document.getElementById('loader').style.display = 'none'; });
+
     function jumpToSerial(s) { searchInput.value = s; performSearch(s); window.scrollTo({top: 0, behavior: 'smooth'}); }
+
     function linkify(text) {
         if (!text) return '';
-        return text.toString().replace(/(\d{8,9})/g, (m) => `<span class="serial-link" onclick="event.stopPropagation(); jumpToSerial('${m}')">${m}</span>`);
+        return text.toString().replace(/(\d{8,9})/g, (m) => `<span class="serial-link" onclick="event.stopPropagation(); jumpToSerial('${m}')">\${m}</span>`);
     }
+
     function createCard(item) {
         const card = document.createElement('div');
         card.className = 'record-card';
         card.onclick = () => card.classList.toggle('expanded');
-        const owner = ['OWNER', 'Owner Address', 'Owner city', 'Owner State', 'Owner Zip'];
-        const account = ['STATUS', 'Service(s)', 'Activity', 'Assessed With', 'Group', 'ACREAGE', 'assessable Acreage', 'Acre Ft of Water'];
-        const rates = ['2022 O&M Per Acre Ft', '2024 O&M Per Acre Ft', '2025 O&M Per Acre Ft', '2025 Condo Rate', 'special rate increase'];
-        const notesFields = ['Other Description', 'Special Notes', 'Legal Description', 'Priors', 'Futures'];
-        const asmt = Object.keys(item).filter(k => k.includes('ASMNT') || k.includes('ASSESSM')).map(k => ({k, v: item[k]})).sort((a,b) => (a.k.match(/\d+/)||99) - (b.k.match(/\d+/)||99));
-        const render = (keys) => keys.map(k => item[k] ? `<div class="data-item"><span class="label">${k}</span><span class="value">${(k==='Priors'||k==='Futures'||k==='Assessed With') ? linkify(item[k]) : item[k]}</span></div>` : '').join('');
+
+        // Field Groupings
+        const ownerKeys = ['OWNER', 'Owner Address', 'Owner city', 'Owner State', 'Owner Zip'];
+        const accountKeys = ['STATUS', 'Service(s)', 'Activity', 'Assessed With', 'Group', 'ACREAGE', 'assessable Acreage', 'Acre Ft of Water', 'House No', 'Street Name'];
+        const rateKeys = ['2022 O&M Per Acre Ft', '2024 O&M Per Acre Ft', '2025 O&M Per Acre Ft', '2025 Condo Rate', 'special rate increase'];
+        const textKeys = ['Other Description', 'Special Notes', 'Legal Description', 'Priors', 'Futures'];
+        
+        // Tracking which keys we've shown to avoid duplicates or missing fields
+        const shownKeys = new Set([...ownerKeys, ...accountKeys, ...rateKeys, ...textKeys, 'ADDRESS', 'ADDRESS(COMB)', 'TAX SER NO']);
+        
+        // History Keys
+        const history = Object.keys(item)
+            .filter(k => k.toLowerCase().includes('asmnt') || k.toLowerCase().includes('assessm'))
+            .map(k => { shownKeys.add(k); return {k, v: item[k]}; })
+            .sort((a,b) => (a.k.match(/\d+/)||99) - (b.k.match(/\d+/)||99));
+
+        const renderGrid = (keys) => keys.map(k => item[k] ? `<div class="data-item"><span class="label">\${k}</span><span class="value">\${(k==='Priors'||k==='Futures'||k==='Assessed With') ? linkify(item[k]) : item[k]}</span></div>` : '').join('');
+        
+        // Catch any field that wasn't explicitly assigned
+        const otherKeys = Object.keys(item).filter(k => !shownKeys.has(k) && item[k] !== '');
+
         card.innerHTML = `
             <div class="record-header">
-                <span class="address-title">${item['ADDRESS(COMB)']}</span>
-                <div class="serial-subtitle">Serial: ${item['TAX SER NO']}</div>
+                <span class="address-title">\${item['ADDRESS(COMB)']}</span>
+                <div class="serial-subtitle">Serial: \${item['TAX SER NO']}</div>
             </div>
             <div class="record-body">
-                <div class="section"><div class="section-header"><div class="section-title">Owner</div></div><div class="grid-3">${render(owner)}</div></div>
-                <div class="section"><div class="section-header"><div class="section-title">Account</div></div><div class="grid-3">${render(account)}</div></div>
-                <div class="section"><div class="section-header"><div class="section-title">Rates</div></div><div class="grid-3">${render(rates)}</div></div>
-                <div class="section"><div class="section-header"><div class="section-title">History</div></div><div class="assessment-grid">
-                    ${asmt.map(a => `<div class="asmnt-box"><span class="asmnt-year">${a.k}</span><span class="asmnt-val">${a.v}</span></div>`).join('')}
-                </div></div>
-                <div class="section"><div class="section-header"><div class="section-title">Notes</div></div>
-                    ${notesFields.map(k => item[k] ? `<div class="data-item" style="margin-bottom:15px"><span class="label">${k}</span><div class="text-block">${linkify(item[k])}</div></div>` : '').join('')}
+                <div class="section"><div class="section-header"><div class="section-title">Owner Information</div></div><div class="grid-3">\${renderGrid(ownerKeys)}</div></div>
+                <div class="section"><div class="section-header"><div class="section-title">Account Details</div></div><div class="grid-3">\${renderGrid(accountKeys)}</div></div>
+                <div class="section"><div class="section-header"><div class="section-title">Rates & Fees</div></div><div class="grid-3">\${renderGrid(rateKeys)}</div></div>
+                <div class="section"><div class="section-header"><div class="section-title">Assessment History</div></div>
+                    <div class="assessment-grid">\${history.map(a => `<div class="asmnt-box"><span class="asmnt-year">\${a.k}</span><span class="asmnt-val">\${a.v}</span></div>`).join('')}</div>
                 </div>
+                <div class="section"><div class="section-header"><div class="section-title">Notes & Descriptions</div></div>
+                    \${textKeys.map(k => item[k] ? `<div class="data-item" style="margin-bottom:15px"><span class="label">\${k}</span><div class="text-block">\${linkify(item[k])}</div></div>` : '').join('')}
+                </div>
+                \${otherKeys.length > 0 ? `<div class="section"><div class="section-header"><div class="section-title">Additional Data</div></div><div class="grid-3">\${renderGrid(otherKeys)}</div></div>` : ''}
             </div>`;
         return card;
     }
+
     function performSearch(q) {
         const val = q.toLowerCase().trim();
         resultsList.innerHTML = '';
         if (val.length < 2) return;
-        records.filter(r => (r['ADDRESS(COMB)']||'').toLowerCase().includes(val) || (r['TAX SER NO']||'').includes(val)).slice(0, 50).forEach(m => resultsList.appendChild(createCard(m)));
+        records.filter(r => (r['ADDRESS(COMB)']||'').toLowerCase().includes(val) || (r['TAX SER NO']||'').includes(val))
+               .slice(0, 50).forEach(m => resultsList.appendChild(createCard(m)));
     }
+
     searchInput.addEventListener('input', () => performSearch(searchInput.value));
 </script>
 </body>
