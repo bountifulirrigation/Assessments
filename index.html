@@ -54,14 +54,18 @@
     fetch('data.json').then(res => res.json()).then(data => { records = data; document.getElementById('loader').style.display = 'none'; });
 
     function jumpToSerial(s) { 
-        const cleanSerial = s.replace(/-/g, '');
-        searchInput.value = cleanSerial; 
-        performSearch(cleanSerial); 
+        const cleanSerial = s.replace(/-/g, '').trim();
+        let searchVal = cleanSerial;
+        if (/^\d+$/.test(cleanSerial) && cleanSerial.length < 9) {
+            searchVal = cleanSerial.padStart(9, '0');
+        }
+        searchInput.value = searchVal; 
+        performSearch(searchVal); 
         window.scrollTo({top: 0, behavior: 'smooth'}); 
     }
 
     function linkify(text) {
-        if (!text) return 'N/A';
+        if (!text || text === 'N/A') return 'N/A';
         return text.toString().replace(/(\d{2}-\d{3}-\d{4}|\d{8,9})/g, (m) => `<span class="serial-link" onclick="event.stopPropagation(); jumpToSerial('${m}')">${m}</span>`);
     }
 
@@ -76,7 +80,13 @@
         const noteFields = ['Special Notes', 'Other Description', 'Legal Description', 'Priors', 'Futures'];
 
         const asmt = Object.keys(item).filter(k => k.includes('ASMNT') || k.includes('ASSESSM'))
-            .map(k => ({k, v: item[k] || '0'})).sort((a,b) => (a.k.match(/\d+/)||99) - (b.k.match(/\d+/)||99));
+            .map(k => ({k, v: item[k] || '0'})).sort((a,b) => {
+                const yearA = parseInt(a.k.match(/\d+/)) || 0;
+                const yearB = parseInt(b.k.match(/\d+/)) || 0;
+                const realA = yearA < 30 ? 2000 + yearA : (yearA < 100 ? 1900 + yearA : yearA);
+                const realB = yearB < 30 ? 2000 + yearB : (yearB < 100 ? 1900 + yearB : yearB);
+                return realA - realB;
+            });
 
         const renderItems = (keys) => keys.map(k => {
             let val = item[k] || 'N/A';
@@ -112,8 +122,11 @@
         const val = q.toLowerCase().replace(/-/g, '').trim();
         resultsList.innerHTML = '';
         if (val.length < 1) return;
-        records.filter(r => (r['ADDRESS(COMB)']||'').toLowerCase().includes(val) || (r['TAX SER NO']||'').includes(val))
-               .slice(0, 50).forEach(m => resultsList.appendChild(createCard(m)));
+        records.filter(r => {
+            const addr = (r['ADDRESS(COMB)']||'').toLowerCase();
+            const ser = (r['TAX SER NO']||'').toLowerCase();
+            return addr.includes(val) || ser.includes(val);
+        }).slice(0, 50).forEach(m => resultsList.appendChild(createCard(m)));
     }
 
     searchInput.addEventListener('input', () => performSearch(searchInput.value));
