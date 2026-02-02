@@ -17,7 +17,9 @@
         .record-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; cursor: pointer; margin-bottom: 10px; }
         .record-header { padding: 24px; }
         .address-title { display: block; font-size: 1.5rem; font-weight: 800; color: var(--primary); }
-        .serial-subtitle { display: inline-flex; align-items: center; background: var(--accent-light); color: var(--accent); padding: 4px 12px; border-radius: 9999px; font-weight: 700; font-size: 0.875rem; margin-top: 8px; }
+        .header-meta { margin-top: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .serial-subtitle { display: inline-flex; align-items: center; background: var(--accent-light); color: var(--accent); padding: 4px 12px; border-radius: 9999px; font-weight: 700; font-size: 0.875rem; }
+        .owner-addr-subtitle { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
         .record-body { display: none; padding: 0 24px 32px; border-top: 1px solid var(--border); background: #fafafa; }
         .record-card.expanded .record-body { display: block; }
         .section { margin-top: 32px; }
@@ -34,7 +36,7 @@
         .text-block { background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9375rem; white-space: pre-wrap; line-height: 1.6; }
         .serial-link { color: var(--accent); text-decoration: underline; font-weight: 700; cursor: pointer; }
         #loader { position: fixed; inset: 0; background: #fff; display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        @media (max-width: 768px) { .grid-3 { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .grid-3 { grid-template-columns: 1fr; } .header-meta { flex-direction: column; align-items: flex-start; gap: 4px; } }
     </style>
 </head>
 <body>
@@ -52,7 +54,6 @@
     fetch('data.json').then(res => res.json()).then(data => { records = data; document.getElementById('loader').style.display = 'none'; });
 
     function jumpToSerial(s) { 
-        // Remove dashes for searching
         const cleanSerial = s.replace(/-/g, '');
         searchInput.value = cleanSerial; 
         performSearch(cleanSerial); 
@@ -61,7 +62,6 @@
 
     function linkify(text) {
         if (!text) return 'N/A';
-        // Matches numbers with dashes like 06-105-0005 or plain 9 digits
         return text.toString().replace(/(\d{2}-\d{3}-\d{4}|\d{8,9})/g, (m) => `<span class="serial-link" onclick="event.stopPropagation(); jumpToSerial('${m}')">${m}</span>`);
     }
 
@@ -89,7 +89,10 @@
         card.innerHTML = `
             <div class="record-header">
                 <span class="address-title">${item['ADDRESS(COMB)'] || 'N/A'}</span>
-                <div class="serial-subtitle">Serial: ${item['TAX SER NO']}</div>
+                <div class="header-meta">
+                    <span class="serial-subtitle">Serial: ${item['TAX SER NO']}</span>
+                    <span class="owner-addr-subtitle">${item['Owner Address'] || ''}</span>
+                </div>
             </div>
             <div class="record-body">
                 <div class="section"><div class="section-header"><div class="section-title">Owner</div></div><div class="grid-3">${renderItems(ownerFields)}</div></div>
