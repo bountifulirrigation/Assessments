@@ -32,7 +32,6 @@
         .asmnt-year { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); display: block; }
         .asmnt-val { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
         .text-block { background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9375rem; white-space: pre-wrap; line-height: 1.6; }
-        /* BLUE CLICKABLE LINKS */
         .serial-link { color: var(--accent); text-decoration: underline; font-weight: 700; cursor: pointer; }
         #loader { position: fixed; inset: 0; background: #fff; display: flex; align-items: center; justify-content: center; z-index: 9999; }
         @media (max-width: 768px) { .grid-3 { grid-template-columns: 1fr; } }
@@ -52,17 +51,18 @@
 
     fetch('data.json').then(res => res.json()).then(data => { records = data; document.getElementById('loader').style.display = 'none'; });
 
-    // Link function to search for the clicked number
     function jumpToSerial(s) { 
-        searchInput.value = s; 
-        performSearch(s); 
+        // Remove dashes for searching
+        const cleanSerial = s.replace(/-/g, '');
+        searchInput.value = cleanSerial; 
+        performSearch(cleanSerial); 
         window.scrollTo({top: 0, behavior: 'smooth'}); 
     }
 
-    // Helper to find serial numbers in text and wrap them in links
     function linkify(text) {
-        if (!text) return '';
-        return text.toString().replace(/(\d{8,9})/g, (m) => `<span class="serial-link" onclick="event.stopPropagation(); jumpToSerial('${m}')">${m}</span>`);
+        if (!text) return 'N/A';
+        // Matches numbers with dashes like 06-105-0005 or plain 9 digits
+        return text.toString().replace(/(\d{2}-\d{3}-\d{4}|\d{8,9})/g, (m) => `<span class="serial-link" onclick="event.stopPropagation(); jumpToSerial('${m}')">${m}</span>`);
     }
 
     function createCard(item) {
@@ -70,21 +70,18 @@
         card.className = 'record-card';
         card.onclick = () => card.classList.toggle('expanded');
 
-        // CATEGORIES
         const ownerFields = ['OWNER', 'Owner Address', 'Owner city', 'Owner State', 'Owner Zip'];
         const accountFields = ['STATUS', 'Activity', 'Service(s)', 'Assessed With', 'Group', 'ACREAGE', 'assessable Acreage', 'Acre Ft of Water'];
         const rateFields = ['2022 O&M Per Acre Ft', '2024 O&M Per Acre Ft', '2025 O&M Per Acre Ft', '2025 Condo Rate', 'special rate increase'];
         const noteFields = ['Special Notes', 'Other Description', 'Legal Description', 'Priors', 'Futures'];
 
         const asmt = Object.keys(item).filter(k => k.includes('ASMNT') || k.includes('ASSESSM'))
-            .map(k => ({k, v: item[k]})).sort((a,b) => (a.k.match(/\d+/)||99) - (b.k.match(/\d+/)||99));
+            .map(k => ({k, v: item[k] || '0'})).sort((a,b) => (a.k.match(/\d+/)||99) - (b.k.match(/\d+/)||99));
 
         const renderItems = (keys) => keys.map(k => {
-            if (!item[k]) return '';
-            let val = item[k];
-            // Apply links to Serial Numbers in these fields
+            let val = item[k] || 'N/A';
             if (['Priors', 'Futures', 'Assessed With', 'Special Notes', 'Other Description'].includes(k)) {
-                val = linkify(val);
+                val = linkify(item[k]);
             }
             return `<div class="data-item"><span class="label">${k}</span><span class="value">${val}</span></div>`;
         }).join('');
@@ -102,14 +99,14 @@
                     <div class="assessment-grid">${asmt.map(a => `<div class="asmnt-box"><span class="asmnt-year">${a.k}</span><span class="asmnt-val">${a.v}</span></div>`).join('')}</div>
                 </div>
                 <div class="section"><div class="section-header"><div class="section-title">Notes, Priors & Futures</div></div>
-                    ${noteFields.map(k => item[k] ? `<div class="data-item" style="margin-bottom:15px"><span class="label">${k}</span><div class="text-block">${linkify(item[k])}</div></div>` : '').join('')}
+                    ${noteFields.map(k => `<div class="data-item" style="margin-bottom:15px"><span class="label">${k}</span><div class="text-block">${linkify(item[k])}</div></div>`).join('')}
                 </div>
             </div>`;
         return card;
     }
 
     function performSearch(q) {
-        const val = q.toLowerCase().trim();
+        const val = q.toLowerCase().replace(/-/g, '').trim();
         resultsList.innerHTML = '';
         if (val.length < 1) return;
         records.filter(r => (r['ADDRESS(COMB)']||'').toLowerCase().includes(val) || (r['TAX SER NO']||'').includes(val))
