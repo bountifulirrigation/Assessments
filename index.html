@@ -3,205 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property Assessment Portal - 2025</title>
+    <title>Property Assessment Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #0f172a;
-            --accent: #2563eb;
-            --accent-light: #dbeafe;
-            --bg: #f1f5f9;
-            --card-bg: #ffffff;
-            --border: #e2e8f0;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-        }
-
+        :root { --primary: #0f172a; --accent: #2563eb; --accent-light: #dbeafe; --bg: #f1f5f9; --card-bg: #ffffff; --border: #e2e8f0; --text-main: #1e293b; --text-muted: #64748b; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
         .container { max-width: 1280px; margin: 0 auto; padding: 20px; }
         header { padding: 30px 0; text-align: center; }
-        h1 { font-size: 2.25rem; color: var(--primary); font-weight: 800; margin: 0; }
-
         .search-area { position: sticky; top: 10px; background: var(--bg); padding: 15px 0; z-index: 1000; }
-        .search-container { 
-            max-width: 800px; margin: 0 auto; background: var(--card-bg); 
-            padding: 8px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            border: 1px solid var(--border);
-        }
-        #search-input { 
-            width: 100%; padding: 16px 24px; border: none; background: #f8fafc; 
-            border-radius: 12px; font-size: 1.125rem; outline: none;
-        }
-
+        .search-container { max-width: 800px; margin: 0 auto; background: var(--card-bg); padding: 8px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        #search-input { width: 100%; padding: 16px 24px; border: none; background: #f8fafc; border-radius: 12px; font-size: 1.125rem; outline: none; }
         #results-list { margin-top: 24px; display: flex; flex-direction: column; gap: 20px; }
         .record-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; cursor: pointer; }
-        .record-card:hover { border-color: var(--accent); }
-
         .record-header { padding: 24px; }
         .address-title { display: block; font-size: 1.5rem; font-weight: 800; color: var(--primary); }
-        .serial-subtitle { display: inline-flex; align-items: center; background: var(--accent-light); color: var(--accent); padding: 4px 12px; border-radius: 9999px; font-weight: 700; font-size: 0.875rem; }
-
+        .serial-subtitle { display: inline-flex; align-items: center; background: var(--accent-light); color: var(--accent); padding: 4px 12px; border-radius: 9999px; font-weight: 700; font-size: 0.875rem; margin-top: 8px; }
         .record-body { display: none; padding: 0 24px 32px; border-top: 1px solid var(--border); background: #fafafa; }
         .record-card.expanded .record-body { display: block; }
-
         .section { margin-top: 32px; }
         .section-header { margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
         .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.1em; }
-
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .assessment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
-
         .data-item { display: flex; flex-direction: column; gap: 2px; }
         .label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
         .value { font-size: 0.9375rem; font-weight: 600; color: var(--primary); }
-
         .asmnt-box { background: white; padding: 12px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
         .asmnt-year { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); display: block; }
         .asmnt-val { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
-
-        .text-block { background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9375rem; white-space: pre-wrap; line-height: 1.6; margin-bottom: 15px; }
-
-        /* Style for the serial links */
-        .serial-link {
-            color: var(--accent);
-            text-decoration: underline;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        .serial-link:hover { color: #1d4ed8; }
-
+        .text-block { background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9375rem; white-space: pre-wrap; line-height: 1.6; }
+        .serial-link { color: var(--accent); text-decoration: underline; font-weight: 700; cursor: pointer; }
+        #loader { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
         @media (max-width: 768px) { .grid-3 { grid-template-columns: 1fr; } }
-        #loader { position: fixed; inset: 0; background: #fff; display: flex; align-items: center; justify-content: center; z-index: 9999; }
     </style>
 </head>
 <body>
-
-<div id="loader"><p>Loading Database...</p></div>
-
+<div id="loader"><h2 id="status-text">Loading Database...</h2><p id="error-log" style="color: red;"></p></div>
 <div class="container">
     <header><h1>Property Assessment Portal</h1></header>
     <div class="search-area">
         <div class="search-container">
             <input type="text" id="search-input" placeholder="Search Address or Serial Number..." autocomplete="off">
-            <div id="search-stats" class="stats" style="padding: 8px 15px 0; font-size: 0.875rem; color: var(--text-muted);">Ready.</div>
         </div>
     </div>
     <div id="results-list"></div>
 </div>
-
 <script>
     let records = [];
     const searchInput = document.getElementById('search-input');
     const resultsList = document.getElementById('results-list');
-    const stats = document.getElementById('search-stats');
-
-    fetch('data.json').then(res => res.json()).then(data => {
-        records = data;
-        document.getElementById('loader').style.display = 'none';
-        stats.innerText = `Searching ${records.length.toLocaleString()} records...`;
-    });
-
-    // Helper to jump to a serial number
-    window.jumpToSerial = function(serial) {
-        searchInput.value = serial;
-        performSearch(serial);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    // Linkify serial numbers in text
-    function linkifySerials(text) {
+    fetch('data.json')
+        .then(res => { if (!res.ok) throw new Error("Could not find data.json"); return res.json(); })
+        .then(data => { records = data; document.getElementById('loader').style.display = 'none'; })
+        .catch(err => { document.getElementById('status-text').innerText = "Load Failed"; document.getElementById('error-log').innerText = err.message; });
+    function jumpToSerial(s) { searchInput.value = s; performSearch(s); window.scrollTo({top: 0, behavior: 'smooth'}); }
+    function linkify(text) {
         if (!text) return '';
-        // Look for 8 or 9 digit numbers
-        return text.toString().replace(/(\d{8,9})/g, function(match) {
-            return `<span class="serial-link" onclick="event.stopPropagation(); jumpToSerial('${match}')">\${match}</span>`;
-        });
+        return text.toString().replace(/(\d{8,9})/g, (m) => `<span class="serial-link" onclick="event.stopPropagation(); jumpToSerial('${m}')">${m}</span>`);
     }
-
-    function getYear(k) {
-        if (k.startsWith('99')) return 1999;
-        const m = k.match(/\d+/);
-        if (!m) return 9999;
-        let y = parseInt(m[0]);
-        return y < 50 ? 2000 + y : 1900 + y;
-    }
-
     function createCard(item) {
         const card = document.createElement('div');
         card.className = 'record-card';
         card.onclick = () => card.classList.toggle('expanded');
-
         const owner = ['OWNER', 'Owner Address', 'Owner city', 'Owner State', 'Owner Zip'];
         const account = ['STATUS', 'Service(s)', 'Activity', 'Assessed With', 'Group', 'ACREAGE', 'assessable Acreage', 'Acre Ft of Water'];
         const rates = ['2022 O&M Per Acre Ft', '2024 O&M Per Acre Ft', '2025 O&M Per Acre Ft', '2025 Condo Rate', 'special rate increase'];
-        const notes = ['Other Description', 'Special Notes', 'Legal Description', 'Priors', 'Futures'];
-
-        const asmt = [];
-        Object.keys(item).forEach(k => { if(k.includes('ASMNT') || k.includes('ASSESSM')) asmt.push({k, v: item[k], y: getYear(k)}); });
-        asmt.sort((a,b) => a.y - b.y);
-
-        const renderItems = (keys) => keys.map(k => {
-            let val = item[k];
-            if (!val) return '';
-            // Linkify Priors and Futures values
-            if (k === 'Priors' || k === 'Futures' || k === 'Assessed With') {
-                val = linkifySerials(val);
-            }
-            return `<div class="data-item"><span class="label">${k}</span><span class="value">${val}</span></div>`;
-        }).join('');
-
+        const notesFields = ['Other Description', 'Special Notes', 'Legal Description', 'Priors', 'Futures'];
+        const asmt = Object.keys(item).filter(k => k.includes('ASMNT') || k.includes('ASSESSM')).map(k => ({k, v: item[k]})).sort((a,b) => (a.k.match(/\d+/)||99) - (b.k.match(/\d+/)||99));
+        const render = (keys) => keys.map(k => item[k] ? `<div class="data-item"><span class="label">${k}</span><span class="value">${(k==='Priors'||k==='Futures'||k==='Assessed With') ? linkify(item[k]) : item[k]}</span></div>` : '').join('');
         card.innerHTML = `
             <div class="record-header">
                 <span class="address-title">${item['ADDRESS(COMB)']}</span>
                 <div class="serial-subtitle">Serial: ${item['TAX SER NO']}</div>
             </div>
             <div class="record-body">
-                <div class="section">
-                    <div class="section-header"><div class="section-title">Owner Details</div></div>
-                    <div class="grid-3">${renderItems(owner)}</div>
+                <div class="section"><div class="section-header"><div class="section-title">Owner</div></div><div class="grid-3">${render(owner)}</div></div>
+                <div class="section"><div class="section-header"><div class="section-title">Account</div></div><div class="grid-3">${render(account)}</div></div>
+                <div class="section"><div class="section-header"><div class="section-title">Rates</div></div><div class="grid-3">${render(rates)}</div></div>
+                <div class="section"><div class="section-header"><div class="section-title">History</div></div><div class="assessment-grid">
+                    ${asmt.map(a => `<div class="asmnt-box"><span class="asmnt-year">${a.k}</span><span class="asmnt-val">${a.v}</span></div>`).join('')}
+                </div></div>
+                <div class="section"><div class="section-header"><div class="section-title">Notes</div></div>
+                    ${notesFields.map(k => item[k] ? `<div class="data-item" style="margin-bottom:15px"><span class="label">${k}</span><div class="text-block">${linkify(item[k])}</div></div>` : '').join('')}
                 </div>
-                <div class="section">
-                    <div class="section-header"><div class="section-title">Account & Property Information</div></div>
-                    <div class="grid-3">${renderItems(account)}</div>
-                </div>
-                <div class="section">
-                    <div class="section-header"><div class="section-title">Rates & Fees</div></div>
-                    <div class="grid-3">${renderItems(rates)}</div>
-                </div>
-                <div class="section">
-                    <div class="section-header"><div class="section-title">Assessment History</div></div>
-                    <div class="assessment-grid">
-                        ${asmt.map(a => `<div class="asmnt-box"><span class="asmnt-year">${a.k}</span><span class="asmnt-val">\${typeof a.v === 'number' ? '$'+a.v.toLocaleString() : a.v}</span></div>`).join('')}
-                    </div>
-                </div>
-                <div class="section">
-                    <div class="section-header"><div class="section-title">Notes & Descriptions</div></div>
-                    \${notes.map(k => item[k] ? `<div class="data-item" style="margin-bottom:15px"><span class="label">\${k}</span><div class="text-block">\${linkifySerials(item[k])}</div></div>` : '').join('')}
-                </div>
-            </div>
-        `;
+            </div>`;
         return card;
     }
-
-    function performSearch(term) {
-        const val = term.toLowerCase().trim();
+    function performSearch(q) {
+        const val = q.toLowerCase().trim();
         resultsList.innerHTML = '';
         if (val.length < 2) return;
-        const matches = records.filter(r => 
-            (r['ADDRESS(COMB)'] && r['ADDRESS(COMB)'].toLowerCase().includes(val)) || 
-            (r['TAX SER NO'] && r['TAX SER NO'].toLowerCase().includes(val))
-        );
-        stats.innerText = `Matches: \${matches.length.toLocaleString()}`;
-        matches.slice(0, 50).forEach(m => resultsList.appendChild(createCard(m)));
+        records.filter(r => (r['ADDRESS(COMB)']||'').toLowerCase().includes(val) || (r['TAX SER NO']||'').includes(val)).slice(0, 50).forEach(m => resultsList.appendChild(createCard(m)));
     }
-
     searchInput.addEventListener('input', () => performSearch(searchInput.value));
 </script>
 </body>
