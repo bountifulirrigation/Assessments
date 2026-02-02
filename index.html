@@ -83,8 +83,9 @@
             .map(k => ({k, v: item[k] || '0'})).sort((a,b) => {
                 const yearA = parseInt(a.k.match(/\d+/)) || 0;
                 const yearB = parseInt(b.k.match(/\d+/)) || 0;
-                const realA = yearA < 30 ? 2000 + yearA : (yearA < 100 ? 1900 + yearA : yearA);
-                const realB = yearB < 30 ? 2000 + yearB : (yearB < 100 ? 1900 + yearB : yearB);
+                // Treat years 00-30 as 2000s, and 70-99 as 1900s for correct chronological sorting
+                const realA = yearA < 35 ? 2000 + yearA : (yearA < 100 ? 1900 + yearA : yearA);
+                const realB = yearB < 35 ? 2000 + yearB : (yearB < 100 ? 1900 + yearB : yearB);
                 return realA - realB;
             });
 
