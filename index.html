@@ -33,7 +33,7 @@
         .asmnt-val { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
         .text-block { background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9375rem; white-space: pre-wrap; line-height: 1.6; }
         .serial-link { color: var(--accent); text-decoration: underline; font-weight: 700; cursor: pointer; }
-        #loader { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+        #loader { position: fixed; inset: 0; background: #fff; display: flex; align-items: center; justify-content: center; z-index: 9999; }
         @media (max-width: 768px) { .grid-3 { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -51,13 +51,24 @@
 
     fetch('data.json')
         .then(res => res.json())
-        .then(data => { records = data; document.getElementById('loader').style.display = 'none'; });
+        .then(data => { 
+            records = data; 
+            document.getElementById('loader').style.display = 'none'; 
+        })
+        .catch(err => {
+            document.querySelector('#loader h2').innerText = "Error Loading data.json";
+        });
 
-    function jumpToSerial(s) { searchInput.value = s; performSearch(s); window.scrollTo({top: 0, behavior: 'smooth'}); }
+    function jumpToSerial(s) { 
+        searchInput.value = s; 
+        performSearch(s); 
+        window.scrollTo({top: 0, behavior: 'smooth'}); 
+    }
 
     function linkify(text) {
         if (!text) return '';
-        return text.toString().replace(/(\d{8,9})/g, (m) => `<span class="serial-link" onclick="event.stopPropagation(); jumpToSerial('${m}')">\${m}</span>`);
+        // Looks for 8-9 digit numbers to turn into links
+        return text.toString().replace(/(\d{8,9})/g, (m) => `<span class="serial-link" onclick="event.stopPropagation(); jumpToSerial('${m}')">${m}</span>`);
     }
 
     function createCard(item) {
@@ -65,42 +76,40 @@
         card.className = 'record-card';
         card.onclick = () => card.classList.toggle('expanded');
 
-        // Field Groupings
-        const ownerKeys = ['OWNER', 'Owner Address', 'Owner city', 'Owner State', 'Owner Zip'];
-        const accountKeys = ['STATUS', 'Service(s)', 'Activity', 'Assessed With', 'Group', 'ACREAGE', 'assessable Acreage', 'Acre Ft of Water', 'House No', 'Street Name'];
-        const rateKeys = ['2022 O&M Per Acre Ft', '2024 O&M Per Acre Ft', '2025 O&M Per Acre Ft', '2025 Condo Rate', 'special rate increase'];
-        const textKeys = ['Other Description', 'Special Notes', 'Legal Description', 'Priors', 'Futures'];
-        
-        // Tracking which keys we've shown to avoid duplicates or missing fields
-        const shownKeys = new Set([...ownerKeys, ...accountKeys, ...rateKeys, ...textKeys, 'ADDRESS', 'ADDRESS(COMB)', 'TAX SER NO']);
-        
-        // History Keys
-        const history = Object.keys(item)
-            .filter(k => k.toLowerCase().includes('asmnt') || k.toLowerCase().includes('assessm'))
-            .map(k => { shownKeys.add(k); return {k, v: item[k]}; })
+        const ownerFields = ['OWNER', 'Owner Address', 'Owner city', 'Owner State', 'Owner Zip'];
+        const accountFields = ['STATUS', 'Activity', 'Service(s)', 'Assessed With', 'Group', 'ACREAGE', 'assessable Acreage', 'Acre Ft of Water'];
+        const rateFields = ['2022 O&M Per Acre Ft', '2024 O&M Per Acre Ft', '2025 O&M Per Acre Ft', '2025 Condo Rate'];
+        const noteFields = ['Special Notes', 'Other Description', 'Legal Description', 'Priors', 'Futures'];
+
+        const asmt = Object.keys(item)
+            .filter(k => k.includes('ASMNT') || k.includes('ASSESSM'))
+            .map(k => ({k, v: item[k]}))
             .sort((a,b) => (a.k.match(/\d+/)||99) - (b.k.match(/\d+/)||99));
 
-        const renderGrid = (keys) => keys.map(k => item[k] ? `<div class="data-item"><span class="label">\${k}</span><span class="value">\${(k==='Priors'||k==='Futures'||k==='Assessed With') ? linkify(item[k]) : item[k]}</span></div>` : '').join('');
-        
-        // Catch any field that wasn't explicitly assigned
-        const otherKeys = Object.keys(item).filter(k => !shownKeys.has(k) && item[k] !== '');
+        const renderGrid = (keys) => keys.map(k => {
+            if (!item[k]) return '';
+            let val = item[k];
+            if (['Priors', 'Futures', 'Assessed With', 'Special Notes', 'Other Description'].includes(k)) {
+                val = linkify(val);
+            }
+            return `<div class="data-item"><span class="label">${k}</span><span class="value">${val}</span></div>`;
+        }).join('');
 
         card.innerHTML = `
             <div class="record-header">
-                <span class="address-title">\${item['ADDRESS(COMB)']}</span>
-                <div class="serial-subtitle">Serial: \${item['TAX SER NO']}</div>
+                <span class="address-title">${item['ADDRESS(COMB)'] || 'No Address'}</span>
+                <div class="serial-subtitle">Serial: ${item['TAX SER NO']}</div>
             </div>
             <div class="record-body">
-                <div class="section"><div class="section-header"><div class="section-title">Owner Information</div></div><div class="grid-3">\${renderGrid(ownerKeys)}</div></div>
-                <div class="section"><div class="section-header"><div class="section-title">Account Details</div></div><div class="grid-3">\${renderGrid(accountKeys)}</div></div>
-                <div class="section"><div class="section-header"><div class="section-title">Rates & Fees</div></div><div class="grid-3">\${renderGrid(rateKeys)}</div></div>
+                <div class="section"><div class="section-header"><div class="section-title">Owner Information</div></div><div class="grid-3">${renderGrid(ownerFields)}</div></div>
+                <div class="section"><div class="section-header"><div class="section-title">Account & Status</div></div><div class="grid-3">${renderGrid(accountFields)}</div></div>
+                <div class="section"><div class="section-header"><div class="section-title">Rates</div></div><div class="grid-3">${renderGrid(rateFields)}</div></div>
                 <div class="section"><div class="section-header"><div class="section-title">Assessment History</div></div>
-                    <div class="assessment-grid">\${history.map(a => `<div class="asmnt-box"><span class="asmnt-year">\${a.k}</span><span class="asmnt-val">\${a.v}</span></div>`).join('')}</div>
+                    <div class="assessment-grid">${asmt.map(a => `<div class="asmnt-box"><span class="asmnt-year">${a.k}</span><span class="asmnt-val">${a.v}</span></div>`).join('')}</div>
                 </div>
-                <div class="section"><div class="section-header"><div class="section-title">Notes & Descriptions</div></div>
-                    \${textKeys.map(k => item[k] ? `<div class="data-item" style="margin-bottom:15px"><span class="label">\${k}</span><div class="text-block">\${linkify(item[k])}</div></div>` : '').join('')}
+                <div class="section"><div class="section-header"><div class="section-title">Notes, Priors & Futures</div></div>
+                    ${noteFields.map(k => item[k] ? `<div class="data-item" style="margin-bottom:15px"><span class="label">${k}</span><div class="text-block">${linkify(item[k])}</div></div>` : '').join('')}
                 </div>
-                \${otherKeys.length > 0 ? `<div class="section"><div class="section-header"><div class="section-title">Additional Data</div></div><div class="grid-3">\${renderGrid(otherKeys)}</div></div>` : ''}
             </div>`;
         return card;
     }
@@ -108,9 +117,14 @@
     function performSearch(q) {
         const val = q.toLowerCase().trim();
         resultsList.innerHTML = '';
-        if (val.length < 2) return;
-        records.filter(r => (r['ADDRESS(COMB)']||'').toLowerCase().includes(val) || (r['TAX SER NO']||'').includes(val))
-               .slice(0, 50).forEach(m => resultsList.appendChild(createCard(m)));
+        if (val.length < 1) return;
+        
+        // This logic handles searching "1" to find "000000001"
+        records.filter(r => {
+            const addr = (r['ADDRESS(COMB)']||'').toLowerCase();
+            const ser = (r['TAX SER NO']||'');
+            return addr.includes(val) || ser.includes(val) || ser.endsWith(val.padStart(9, '0').slice(-9));
+        }).slice(0, 50).forEach(m => resultsList.appendChild(createCard(m)));
     }
 
     searchInput.addEventListener('input', () => performSearch(searchInput.value));
