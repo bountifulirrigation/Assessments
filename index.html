@@ -1,351 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Additions</title>
-  <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css" />
-  <script src="https://js.arcgis.com/4.29/"></script>
-  <style>
-    html, body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
-    #appContainer { max-width:700px; margin:50px auto; background:#fff; padding:30px 40px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.08); }
-    h1 { text-align:center; font-size:32px; color:#222; margin-bottom:30px; }
-    .form-row { display:flex; flex-wrap:wrap; margin-top:15px; align-items:center; }
-    .form-row label { flex:1 0 140px; font-weight:600; color:#333; }
-    .form-row input, .form-row textarea { flex:2 0 300px; padding:8px 12px; font-size:14px; border-radius:5px; border:1px solid #ccc; background:#fafafa; color:#222; resize:none; }
-    input[readonly], textarea[readonly] { background-color:#f0f0f0; color:#555; border:1px solid #ccc; }
-    textarea { line-height:1.4; }
-    #priorsContainer, #otherDescDiv, #specialNoDiv, #groupOwnerRow, #submitConfirmRow { display:none; }
-    #submitBtn { margin-top:20px; padding:12px 20px; font-size:16px; cursor:pointer; display:block; margin-left:auto; margin-right:auto; border-radius:6px; border:none; background-color:#4CAF50; color:white; transition: background-color 0.3s ease; }
-    #submitBtn:hover { background-color:#45a049; }
-    #status { margin-top:18px; font-weight:bold; color:#333; text-align:center; }
-    #submitConfirmRow { display:flex; justify-content:center; gap:20px; margin-top:15px; }
-    #submitConfirmRow button { padding:6px 14px; font-size:14px; border-radius:5px; border:none; cursor:pointer; }
-    #submitConfirmRow button.yes { background-color:#4CAF50; color:white; }
-    #submitConfirmRow button.no { background-color:#f44336; color:white; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Assessment Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0f172a; --accent: #2563eb; --accent-light: #dbeafe; --bg: #f1f5f9; --card-bg: #ffffff; --border: #e2e8f0; --text-main: #1e293b; --text-muted: #64748b; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 20px; }
+        header { padding: 30px 0; text-align: center; }
+        .search-area { position: sticky; top: 10px; background: var(--bg); padding: 15px 0; z-index: 1000; }
+        .search-container { max-width: 800px; margin: 0 auto; background: var(--card-bg); padding: 8px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        #search-input { width: 100%; padding: 16px 24px; border: none; background: #f8fafc; border-radius: 12px; font-size: 1.125rem; outline: none; }
+        #results-list { margin-top: 24px; display: flex; flex-direction: column; gap: 20px; }
+        .record-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; cursor: pointer; margin-bottom: 10px; }
+        .record-header { padding: 24px; }
+        .address-title { display: block; font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+        .header-meta { margin-top: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .serial-subtitle { display: inline-flex; align-items: center; background: var(--accent-light); color: var(--accent); padding: 4px 12px; border-radius: 9999px; font-weight: 700; font-size: 0.875rem; }
+        .owner-addr-subtitle { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; }
+        .record-body { display: none; padding: 0 24px 32px; border-top: 1px solid var(--border); background: #fafafa; }
+        .record-card.expanded .record-body { display: block; }
+        .section { margin-top: 32px; }
+        .section-header { margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+        .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.1em; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .assessment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+        .data-item { display: flex; flex-direction: column; gap: 2px; }
+        .label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+        .value { font-size: 0.9375rem; font-weight: 600; color: var(--primary); }
+        .asmnt-box { background: white; padding: 12px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
+        .asmnt-year { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); display: block; }
+        .asmnt-val { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+        .text-block { background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.9375rem; white-space: pre-wrap; line-height: 1.6; }
+        .serial-link { color: var(--accent); text-decoration: underline; font-weight: 700; cursor: pointer; }
+        #loader { position: fixed; inset: 0; background: #fff; display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        @media (max-width: 768px) { .grid-3 { grid-template-columns: 1fr; } .header-meta { flex-direction: column; align-items: flex-start; gap: 4px; } }
+    </style>
 </head>
 <body>
-
-<div id="appContainer">
-  <h1>Additions</h1>
-
-  <div class="form-row">
-    <label for="parcelInput">Parcel Number:</label>
-    <input id="parcelInput" placeholder="Enter Parcel Number" />
-  </div>
-
-  <div id="parcelFields">
-    <div class="form-row"><label for="ownerName">Owner Name:</label><input id="ownerName" readonly /></div>
-    <div class="form-row"><label for="ownerAddress">Owner Address:</label><textarea id="ownerAddress" rows="3" readonly></textarea></div>
-    <div class="form-row"><label for="ownerCity">City:</label><input id="ownerCity" readonly /></div>
-    <div class="form-row"><label for="ownerState">State:</label><input id="ownerState" readonly /></div>
-    <div class="form-row"><label for="ownerZip">ZIP:</label><input id="ownerZip" readonly /></div>
-    <div class="form-row"><label for="Address">Address:</label><input id="Address" readonly /></div>
-    <div class="form-row"><label for="acreage">Acreage:</label><input id="acreage" readonly /></div>
-    <div class="form-row"><label for="assessable">Assessable:</label><input id="assessable" /></div>
-    <div class="form-row"><label for="acreFtWater">Acre Ft of Water:</label><input id="acreFtWater" readonly /></div>
-    <div class="form-row"><label for="parcelStatus">Parcel Status:</label><input id="parcelStatus" /></div>
-    <div class="form-row"><label for="Status">Status:</label><input id="Status" /></div>
-    <div class="form-row"><label for="activity">Activity:</label><input id="activity" readonly /></div>
-    <div class="form-row"><label for="discountMultiplier">Discount Multiplier:</label><input id="discountMultiplier" /></div>
-    <div class="form-row"><label for="services">Services:</label><input id="services" /></div>
-    <div class="form-row"><label for="group_">Group:</label><input id="group_" /></div>
-    <div class="form-row" id="groupOwnerRow"><label for="groupOwner">Group Owner:</label><input id="groupOwner" readonly /></div>
-    <div class="form-row" id="priorsContainer"><label for="priors">Priors:</label><input id="priors" placeholder="e.g., 12345,12347-12350" /></div>
-    <div class="form-row" id="otherDescDiv"><label>Other_Desc:</label><input id="otherDesc" readonly /></div>
-    <div class="form-row" id="specialNoDiv"><label>Special_No:</label><input id="specialNo" readonly /></div>
-
-    <!-- hidden fields -->
-    <input type="hidden" id="HOUSE_NO" />
-    <input type="hidden" id="STREET_NAM" />
-    <input type="hidden" id="Water_Charge" value="6" />
-    <input type="hidden" id="Processed" value="NO" />
-
-    <div id="submitConfirmRow">
-      <button class="yes">Yes</button>
-      <button class="no">No</button>
-    </div>
-
-    <button id="submitBtn">Submit Parcel</button>
-  </div>
-
-  <div id="status"></div>
+<div id="loader"><h2>Loading...</h2></div>
+<div class="container">
+    <header><h1>Property Assessment Portal</h1></header>
+    <div class="search-area"><div class="search-container"><input type="text" id="search-input" placeholder="Search Address or Serial Number..." autocomplete="off"></div></div>
+    <div id="results-list"></div>
 </div>
-
 <script>
-require([
-  "esri/identity/OAuthInfo",
-  "esri/identity/IdentityManager",
-  "esri/request",
-  "esri/geometry/Polygon",
-  "esri/geometry/geometryEngine"
-], function(OAuthInfo, esriId, esriRequest, Polygon, geometryEngine){
+    let records = [];
+    const searchInput = document.getElementById('search-input');
+    const resultsList = document.getElementById('results-list');
 
-  const oauthInfo = new OAuthInfo({
-    appId: "LYyDkVlqS7vIWtgK",
-    portalUrl: "https://bwsd.maps.arcgis.com",
-    popup: false,
-    redirectUri: "https://bountifulirrigation.github.io/Additions/"
-  });
-  esriId.registerOAuthInfos([oauthInfo]);
-  esriId.checkSignInStatus(oauthInfo.portalUrl+"/sharing")
-    .then(startApp)
-    .catch(()=> esriId.getCredential(oauthInfo.portalUrl+"/sharing").then(startApp));
+    fetch('data.json').then(res => res.json()).then(data => { records = data; document.getElementById('loader').style.display = 'none'; });
 
-  function startApp(){
-    const layerAUrl = "https://services3.arcgis.com/qACnxJSsTspwubRv/arcgis/rest/services/service_f6d0b40f569c4851b2227f1f41e55aba/FeatureServer/0";
-    const layerBUrl = "https://services3.arcgis.com/qACnxJSsTspwubRv/arcgis/rest/services/Assessment_Parcels/FeatureServer/0";
-    let newFeatureGeometry = null; 	
-    const parcelInput = document.getElementById("parcelInput");
-    const parcelFields = document.getElementById("parcelFields");
-
-    const ownerName = document.getElementById("ownerName");
-    const ownerAddress = document.getElementById("ownerAddress");
-    const ownerCity = document.getElementById("ownerCity");
-    const ownerState = document.getElementById("ownerState");
-    const ownerZip = document.getElementById("ownerZip");
-    const Address = document.getElementById("Address");
-    const acreage = document.getElementById("acreage");
-    const assessable = document.getElementById("assessable");
-    const acreFtWater = document.getElementById("acreFtWater");
-    const parcelStatus = document.getElementById("parcelStatus");
-    const Status = document.getElementById("Status");
-    const activity = document.getElementById("activity");
-    const discountMultiplier = document.getElementById("discountMultiplier");
-    const services = document.getElementById("services");
-    const group_ = document.getElementById("group_");
-    const groupOwnerRow = document.getElementById("groupOwnerRow");
-    const groupOwner = document.getElementById("groupOwner");
-    const priorsContainer = document.getElementById("priorsContainer");
-    const priors = document.getElementById("priors");
-    const otherDescDiv = document.getElementById("otherDescDiv");
-    const otherDesc = document.getElementById("otherDesc");
-    const specialNoDiv = document.getElementById("specialNoDiv");
-    const specialNo = document.getElementById("specialNo");
-    const HOUSE_NO = document.getElementById("HOUSE_NO");
-    const STREET_NAM = document.getElementById("STREET_NAM");
-    const Water_Charge = document.getElementById("Water_Charge");
-    const Processed = document.getElementById("Processed");
-    const submitBtn = document.getElementById("submitBtn");
-    const submitConfirmRow = document.getElementById("submitConfirmRow");
-    const yesBtn = submitConfirmRow.querySelector(".yes");
-    const noBtn = submitConfirmRow.querySelector(".no");
-    const status = document.getElementById("status");
-
-    parcelFields.style.display="none";
-    submitConfirmRow.style.display="none";
-
-    function expandRangeString(rangeStr){
-      let numbers=[];
-      rangeStr.split(',').forEach(part=>{
-        part=part.trim();
-        if(part.includes('-')){
-          let [start,end]=part.split('-').map(Number);
-          for(let i=start;i<=end;i++) numbers.push(i);
-        } else if(part.length) numbers.push(Number(part));
-      });
-      return numbers;
+    function jumpToSerial(s) { 
+        const cleanSerial = s.replace(/-/g, '').trim();
+        let searchVal = cleanSerial;
+        if (/^\d+$/.test(cleanSerial) && cleanSerial.length < 9) {
+            searchVal = cleanSerial.padStart(9, '0');
+        }
+        searchInput.value = searchVal; 
+        performSearch(searchVal); 
+        window.scrollTo({top: 0, behavior: 'smooth'}); 
     }
 
-    async function lookupParcel(){
-      const parcel = parcelInput.value.trim();
-      status.innerHTML="";
-      parcelFields.style.display="none";
-      submitConfirmRow.style.display="none";
-
-      if(!parcel) return;
-      status.innerHTML="Searching...";
-
-      try{
-        const respB = await esriRequest(layerBUrl+"/query", {
-          method:"post",
-          query:{ f:"json", where:`ParcelTaxID+0=${parseInt(parcel)}`, outFields:"*,ParcelFullSitusAddress,ParcelSitusNumber,ParcelSitusPreDirections,ParcelSitusStreetName,ParcelSitusStreetType", returnGeometry:true,
-outSR:4326 }
-        });
-        if(respB.data.features.length===0){ status.innerHTML="Parcel not found."; return; }
-        const parcelB = respB.data.features[0].attributes;
-// Build polygon(s) from returned features
-const polygons = respB.data.features.map(f =>
-  new Polygon({
-    rings: f.geometry.rings,
-    spatialReference: { wkid: 4326 }
-  })
-);
-
-// merge multipart parcels if needed
-const mergedPolygon = polygons.length > 1
-  ? geometryEngine.union(polygons)
-  : polygons[0];
-
-// centroid guaranteed inside parcel
-newFeatureGeometry = geometryEngine.centroid(mergedPolygon);
-
-        const respA = await esriRequest(layerAUrl+"/query", {
-          method:"post",
-          query:{ f:"json", where:`TAX_SER_NO='${parcel}'`, outFields:"PRIORS,OTHER_DESC,SPECIAL_NO", returnGeometry:false }
-        });
-        if(respA.data.features.length>0){ status.innerHTML="Parcel already exists."; return; }
-
-        ownerName.value = parcelB.ParcelOwnerName||"";
-        ownerAddress.value = [parcelB.ParcelOwnerMailAddressLine1, parcelB.ParcelOwnerMailAddressLine2, parcelB.ParcelOwnerMailAddressLine3].filter(Boolean).join("\n");
-        ownerCity.value = parcelB.ParcelOwnerMailCity||"";
-        ownerState.value = parcelB.ParcelOwnerMailState||"";
-        ownerZip.value = parcelB.ParcelOwnerMailZipcode||"";
-        Address.value = parcelB.ParcelFullSitusAddress||"";
-        acreage.value = parcelB.ParcelAcreage||"";
-        assessable.value = parcelB.ParcelAcreage||"";
-        acreFtWater.value = parcelB.ParcelAcreage?(parcelB.ParcelAcreage*2.9).toFixed(2):"";
-        parcelStatus.value="Active";
-        Status.value="";
-        activity.value="NEW"+new Date().getFullYear().toString().slice(-2);
-        discountMultiplier.value=1;
-        services.value=1;
-        group_.value=100;
-        groupOwner.value="";
-
-        const houseNoPart1 = parcelB.ParcelSitusNumber || "";
-        const houseNoPart2 = parcelB.ParcelSitusPreDirections || "";
-        HOUSE_NO.value = houseNoPart1 && houseNoPart2 ? `${houseNoPart1} ${houseNoPart2}` : (houseNoPart1 || houseNoPart2);
-
-        const streetPart1 = parcelB.ParcelSitusStreetName || "";
-        const streetPart2 = parcelB.ParcelSitusStreetType || "";
-        STREET_NAM.value = streetPart1 && streetPart2 ? `${streetPart1} ${streetPart2}` : (streetPart1 || streetPart2);
-
-        groupOwnerRow.style.display="none";
-        parcelFields.style.display="block";
-        priorsContainer.style.display="flex";
-        submitBtn.disabled=false;
-        status.innerHTML="Parcel found.";
-
-      }catch(err){ console.error(err); status.innerHTML="Error during lookup."; }
+    function linkify(text) {
+        if (!text || text === 'N/A') return 'N/A';
+        return text.toString().replace(/(\d{2}-\d{3}-\d{4}|\d{8,9})/g, (m) => `<span class="serial-link" onclick="event.stopPropagation(); jumpToSerial('${m}')">${m}</span>`);
     }
 
-    parcelInput.addEventListener("blur", lookupParcel);
-    parcelInput.addEventListener("keydown", e=>{ if(e.key==="Enter") lookupParcel(); });
+    function createCard(item) {
+        const card = document.createElement('div');
+        card.className = 'record-card';
+        card.onclick = () => card.classList.toggle('expanded');
 
-    assessable.addEventListener("input", ()=>{ 
-      const val=parseFloat(assessable.value);
-      acreFtWater.value=isNaN(val)?"":(val*2.9).toFixed(2);
-    });
+        const ownerFields = ['OWNER', 'Owner Address', 'Owner city', 'Owner State', 'Owner Zip'];
+        const accountFields = ['STATUS', 'Activity', 'Service(s)', 'Assessed With', 'Group', 'ACREAGE', 'assessable Acreage', 'Acre Ft of Water'];
+        const rateFields = ['2022 O&M Per Acre Ft', '2024 O&M Per Acre Ft', '2025 O&M Per Acre Ft', '2025 Condo Rate', 'special rate increase'];
+        const noteFields = ['Special Notes', 'Other Description', 'Legal Description', 'Priors', 'Futures'];
 
-    priors.addEventListener("blur", async function(){
-      const raw=priors.value.trim();
-      if(!raw) return;
-      const priorNums=expandRangeString(raw);
-      let otherDescList=[], specialNoList=[];
-      for(let prior of priorNums){
-        try{
-          const resp = await esriRequest(layerAUrl+"/query",{
-            method:"post",
-            query:{ f:"json", where:`TAX_SER_NO='${prior}'`, outFields:"OTHER_DESC,SPECIAL_NO", returnGeometry:false }
-          });
-          if(resp.data.features.length){
-            const attrs=resp.data.features[0].attributes;
-            if(attrs.OTHER_DESC) otherDescList.push(attrs.OTHER_DESC);
-            if(attrs.SPECIAL_NO) specialNoList.push(attrs.SPECIAL_NO);
-          }
-        }catch(err){ console.error(err); }
-      }
-      otherDesc.value = otherDescList.length? otherDescList.join(", "):"N/A";
-      specialNo.value = specialNoList.length? specialNoList.join(", "):"N/A";
-      otherDescDiv.style.display="flex";
-      specialNoDiv.style.display="flex";
-    });
+        const asmt = Object.keys(item).filter(k => k.includes('ASMNT') || k.includes('ASSESSM'))
+            .map(k => ({k, v: item[k] || '0'})).sort((a,b) => {
+                const yearA = parseInt(a.k.match(/\d+/)) || 0;
+                const yearB = parseInt(b.k.match(/\d+/)) || 0;
+                // Treat years 00-30 as 2000s, and 70-99 as 1900s for correct chronological sorting
+                const realA = yearA < 35 ? 2000 + yearA : (yearA < 100 ? 1900 + yearA : yearA);
+                const realB = yearB < 35 ? 2000 + yearB : (yearB < 100 ? 1900 + yearB : yearB);
+                return realA - realB;
+            });
 
-    group_.addEventListener("input", function(){
-      if(parseInt(group_.value)!==100){ groupOwnerRow.style.display="flex"; }
-      else{ groupOwnerRow.style.display="none"; groupOwner.value=""; }
-    });
+        const renderItems = (keys) => keys.map(k => {
+            let val = item[k] || 'N/A';
+            if (['Priors', 'Futures', 'Assessed With', 'Special Notes', 'Other Description'].includes(k)) {
+                val = linkify(item[k]);
+            }
+            return `<div class="data-item"><span class="label">${k}</span><span class="value">${val}</span></div>`;
+        }).join('');
 
-    submitBtn.addEventListener("click", ()=>{ submitConfirmRow.style.display="flex"; });
+        card.innerHTML = `
+            <div class="record-header">
+                <span class="address-title">${item['ADDRESS(COMB)'] || 'N/A'}</span>
+                <div class="header-meta">
+                    <span class="serial-subtitle">Serial: ${item['TAX SER NO']}</span>
+                    <span class="owner-addr-subtitle">${item['Owner Address'] || ''}</span>
+                </div>
+            </div>
+            <div class="record-body">
+                <div class="section"><div class="section-header"><div class="section-title">Owner</div></div><div class="grid-3">${renderItems(ownerFields)}</div></div>
+                <div class="section"><div class="section-header"><div class="section-title">Account & Status</div></div><div class="grid-3">${renderItems(accountFields)}</div></div>
+                <div class="section"><div class="section-header"><div class="section-title">Rates</div></div><div class="grid-3">${renderItems(rateFields)}</div></div>
+                <div class="section"><div class="section-header"><div class="section-title">Assessment History</div></div>
+                    <div class="assessment-grid">${asmt.map(a => `<div class="asmnt-box"><span class="asmnt-year">${a.k}</span><span class="asmnt-val">${a.v}</span></div>`).join('')}</div>
+                </div>
+                <div class="section"><div class="section-header"><div class="section-title">Notes, Priors & Futures</div></div>
+                    ${noteFields.map(k => `<div class="data-item" style="margin-bottom:15px"><span class="label">${k}</span><div class="text-block">${linkify(item[k])}</div></div>`).join('')}
+                </div>
+            </div>`;
+        return card;
+    }
 
-    yesBtn.addEventListener("click", async function(){
-      const attrs={
-        TAX_SER_NO: parcelInput.value,
-        Parcel_Status: parcelStatus.value,
-        STATUS: Status.value,
-        ACTIVITY: activity.value,
-        Owner_Name: ownerName.value,
-        Owner_Address: ownerAddress.value,
-        OWNER_CITY: ownerCity.value,
-        OWNER_STAT: ownerState.value,
-        OWNER_ZIP: ownerZip.value,
-        Address: Address.value,
-        Acreage: acreage.value,
-        ASSESSABLE: assessable.value,
-        Acre_ft_Water: acreFtWater.value,
-        Discount_Multiplier: discountMultiplier.value,
-        SERVICE_S_: services.value,
-        GROUP_: group_.value,
-        group_owner: groupOwner.value,
-        PRIORS: priors.value,
-        OTHER_DESC: otherDesc.value,
-        SPECIAL_NO: specialNo.value,
-        HOUSE_NO: HOUSE_NO.value,
-        STREET_NAM: STREET_NAM.value,
-        Water_Charge: 6,
-        Processed: Processed.value
-      };
-      try{
-        const cred=await esriId.checkSignInStatus(oauthInfo.portalUrl+"/sharing");
-        await esriRequest(layerAUrl+"/addFeatures",{
-          method:"post",
-          query:{
-            f:"json",
-            features: JSON.stringify([{
-  attributes: attrs,
-  geometry: newFeatureGeometry
-}])
-          },
-          authentication: cred,
-          responseType:"json"
-        });
-        status.innerHTML="Parcel successfully submitted!";
-        submitConfirmRow.style.display="none";
+    function performSearch(q) {
+        const val = q.toLowerCase().replace(/-/g, '').trim();
+        resultsList.innerHTML = '';
+        if (val.length < 1) return;
+        records.filter(r => {
+            const addr = (r['ADDRESS(COMB)']||'').toLowerCase();
+            const ser = (r['TAX SER NO']||'').toLowerCase();
+            return addr.includes(val) || ser.includes(val);
+        }).slice(0, 50).forEach(m => resultsList.appendChild(createCard(m)));
+    }
 
-        // === RESET ALL FIELDS AND FOCUS INPUT ===
-        setTimeout(() => {
-          parcelInput.value = "";
-          ownerName.value = "";
-          ownerAddress.value = "";
-          ownerCity.value = "";
-          ownerState.value = "";
-          ownerZip.value = "";
-          Address.value = "";
-          acreage.value = "";
-          assessable.value = "";
-          acreFtWater.value = "";
-          parcelStatus.value = "";
-          Status.value = "";
-          activity.value = "";
-          discountMultiplier.value = "";
-          services.value = "";
-          group_.value = 100;
-          groupOwner.value = "";
-          priors.value = "";
-          otherDesc.value = "";
-          specialNo.value = "";
-          HOUSE_NO.value = "";
-          STREET_NAM.value = "";
-          parcelFields.style.display = "none";
-          priorsContainer.style.display = "none";
-          otherDescDiv.style.display = "none";
-          specialNoDiv.style.display = "none";
-          submitConfirmRow.style.display = "none";
-          status.innerHTML = "";
-          parcelInput.focus();
-        }, 300);
-        // === END CHANGE ===
-
-      }catch(err){ console.error(err); status.innerHTML="Error submitting parcel."; }
-    });
-
-    noBtn.addEventListener("click", ()=>{ submitConfirmRow.style.display="none"; });
-
-  }
-});
+    searchInput.addEventListener('input', () => performSearch(searchInput.value));
 </script>
-
 </body>
 </html>
